@@ -1,5 +1,5 @@
 const menus = [
-  { id: '0', icon: 'user', name: '首页', pathname: 'home', check: true, children: [] },
+  { id: '0', icon: 'user', name: '首页', pathname: 'main', check: true, children: [] },
     { id: '1', icon: 'user', name: '人员管理', check: true, children: [
     { id: '100', icon: 'user', name: '人员列表', pathname: 'personnelManage', check: true, children: [] },
     { id: '101', icon: 'user', name: '人员数据分析', check: true, children: [] },

@@ -14,15 +14,16 @@ export default [
     component: Home,
     exact: true,
     routes: [
-      {
-        path: '/home',
-        component: Main,
+      { 
+        path: '/main', 
+        component: Main, 
+        exact: true
       },
-      {
-        path: '/personnelManage',
-        icon: 'user',
-        component: PersonnelManage,
-      },
+      { 
+        path: '/personnelManage', 
+        component: PersonnelManage, 
+        exact: true
+      }
     ],
   },
 ];

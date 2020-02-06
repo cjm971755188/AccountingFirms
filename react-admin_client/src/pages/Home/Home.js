@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Layout, Menu, Icon } from 'antd';
-/* import { connect } from 'dva'; */
+import { Router, Route, Switch, Redirect } from 'dva/router';
+import routes from '../../router';
 
 import logo from '../../assets/logo.jpg'
 import menus from './mockMenu'
@@ -46,10 +47,7 @@ class Home extends Component {
           <Menu.Item 
             key={menus[i].id} 
             onClick={() => {
-              this.props.history.push({
-                pathname: menus[i].pathname,
-                query: {}
-              })
+              this.props.history.push(`/home/${menus[i].pathname}`)
             }}
           >
             <Icon type={menus[i].icon} />
@@ -60,10 +58,6 @@ class Home extends Component {
       menu.push(m)
     }
     return menu
-  }
-
-  getContents = () => {
-    const com = 'Main'
   }
 
   render () {
@@ -83,7 +77,11 @@ class Home extends Component {
           collapsed={this.state.collapsed}
         >
           <img src={logo} alt="金蜜果会计事务所Logo" style={{ maxWidth: '60%', margin: '10px 20% 20px 20%' }} />
-          <Menu theme="light" mode="inline" defaultSelectedKeys={['0']}>
+          <Menu 
+            theme="light" 
+            mode="inline" 
+            defaultSelectedKeys={['0']} 
+          >
             {this.getMenus(menus)}
           </Menu>
         </Sider>
@@ -104,7 +102,14 @@ class Home extends Component {
           </Header>
           <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
             <div style={{ padding: 24, background: '#fff', textAlign: 'center' }}>
-              {this.getContents()}
+              <Router history={history}>
+                <Switch>
+                  {routes[1].routes.map(route => { 
+                    return <Route key={`home/${route.path}`} path={`/home${route.path}`} component={route.component} />
+                  })}
+                  <Redirect exact from="/" to={routes[1].routes[0].path} />
+                </Switch>
+              </Router>
             </div>
           </Content>
           <Footer style={{ textAlign: 'center' }}>浙江大学城市学院 软件工程1601班 陈佳敏 全栈开发</Footer>

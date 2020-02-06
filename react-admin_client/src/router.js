@@ -1,15 +1,28 @@
-import React from 'react';
-import { Router, Route, Switch } from 'dva/router';
-import IndexPage from './routes/IndexPage';
+import Login from './pages/Login/Login';
+import Home from './pages/Home/Home';
+import Main from './pages/Main/Main';
+import PersonnelManage from './pages/PersonnelManage/PersonnelManage';
 
-function RouterConfig({ history }) {
-  return (
-    <Router history={history}>
-      <Switch>
-        <Route path="/" exact component={IndexPage} />
-      </Switch>
-    </Router>
-  );
-}
-
-export default RouterConfig;
+export default [
+  {
+    path: '/login',
+    component: Login,
+    exact: true,
+  },
+  {
+    path: '/home',
+    component: Home,
+    exact: true,
+    routes: [
+      {
+        path: '/home',
+        component: Main,
+      },
+      {
+        path: '/personnelManage',
+        icon: 'user',
+        component: PersonnelManage,
+      },
+    ],
+  },
+];

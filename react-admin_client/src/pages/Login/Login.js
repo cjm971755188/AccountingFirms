@@ -16,7 +16,7 @@ class Login extends Component {
 
   getForm = type => {
     if (type === 'login') {
-      return <LoginForm sendType={this.getType} login={this.login} />
+      return <LoginForm sendType={this.getType} />
     } else if(type === 'forget') {
       return <ForgetForm sendType={this.getType} />
     } else if(type === 'reset') {
@@ -27,13 +27,6 @@ class Login extends Component {
 
   getType = type => {
     this.setState({ type })
-  }
-
-  login = () => {
-    this.props.history.push({
-      pathname: '/home',
-      query: {}
-    })
   }
 
   render () {

@@ -1,5 +1,6 @@
 import React from 'react';
 import dva from 'dva';
+import createLoading from 'dva-loading';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'dva/router';
 import { createBrowserHistory } from 'history';
 import './global.css';
@@ -12,10 +13,10 @@ const app = dva({
 });
 
 // 2. Plugins
-// app.use({});
+app.use(createLoading());
 
 // 3. Model
-// app.model(require('./models/example').default);
+app.model(require('./models/login').default);
 
 // 4. Router
 app.router(() =>

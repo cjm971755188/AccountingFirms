@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Form, Input, Icon, Button } from 'antd';
+import { connect } from 'dva';
 
+@connect(({ login }) => ({ login }))
 class Login extends Component {
   constructor(props) {
     super(props);
@@ -8,11 +10,20 @@ class Login extends Component {
   }
 
   handleSubmit = e => {
+    const { dispatch } = this.props
+    console.log(this.props)
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
-        this.props.login()
+        dispatch({
+          type: 'login/loginUser',
+          payload: values
+        });
+        /* this.props.history.push({
+          pathname: '/home/main',
+          query: {}
+        }) */
       }
     });
   };

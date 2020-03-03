@@ -7,6 +7,8 @@
     "eject": "react-app-rewired eject"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.0.2",
+    "@ant-design/icons-angular": "^9.0.0",
     "@babel/core": "^7.8.4",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-decorators": "^7.8.3",
@@ -67,5 +69,6 @@
     "presets": [
       "react-app"
     ]
-  }
+  },
+  "proxy": "http://192.168.3.103:3000"
 }

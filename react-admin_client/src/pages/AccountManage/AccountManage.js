@@ -1,28 +1,30 @@
 import React, { Component } from 'react';
-import { Card, Popconfirm, Table, Divider, Button, Row, Col, Input, Icon, message, Select } from 'antd';
+import { Card, Popconfirm, Table, Divider, Button, Row, Col, Input, Icon, message, Modal, Select } from 'antd';
 import { connect } from 'dva';
 
-const { Option } = Select;
+const { Option } = Select
 
-@connect(({ personnelManage, loading }) => ({
-  personnelManage,
-  loading: loading.effects['personnelManage/getList'],
+@connect(({ accountManage, loading }) => ({
+  accountManage,
+  loading: loading.effects['accountManage/getList'],
 }))
-class PersonnelManage extends Component {
+class AccountManage extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.state = {
+      permissionsVisible: false,
+      permissionsId: '',
+      permissionsName: ''
+    }
   }
 
   UNSAFE_componentWillMount () {
     const {
-      personnelManage: {
+      accountManage: {
         list: { pageSize = 10, pageNum = 0 },
         currentParameter: {
           uid = '',
           name = '',
-          position = 'all',
-          state = 'all'
         },
       },
       history: { action },
@@ -31,67 +33,53 @@ class PersonnelManage extends Component {
     const payload = {
       uid,
       name,
-      position: position === 'all' ? null : position,
-      state: state === 'all' ? null : state,
       pageNum,
       pageSize,
     };
     if (action !== 'POP') {
       dispatch({
-        type: 'personnelManage/reset',
+        type: 'accountManage/reset',
       });
       dispatch({
-        type: 'personnelManage/fetchList',
+        type: 'accountManage/fetchList',
         payload: {
           uid: null,
           name: null,
-          position: null,
-          state: null,
           pageNum: 0,
           pageSize,
         },
       });
       dispatch({
-        type: 'personnelManage/save',
+        type: 'accountManage/save',
         payload: {
           choosedUid: '',
           choosedName: '',
-          choosedPosition: 'all',
-          choosedState: 'all'
         },
         index: 'comfirmData',
       });
     } else {
       dispatch({
-        type: 'personnelManage/fetchList',
+        type: 'accountManage/fetchList',
         payload,
       });
       dispatch({
-        type: 'personnelManage/save',
+        type: 'accountManage/save',
         payload: {
           choosedUid: uid,
           choosedName: name,
-          choosedPosition: position,
-          choosedState: state
         },
         index: 'comfirmData',
       });
     }
-    dispatch({
-      type: 'personnelManage/getPositions',
-      payload: {}
-    })
   }
 
   query = () => {
     const {
-      personnelManage: {
+      accountManage: {
         list: { pageSize = 10, pageNum = 0 },
         currentParameter: {
           uid = '',
           name = '',
-          position = 'all',
-          state = 'all'
         },
       },
       dispatch,
@@ -99,22 +87,18 @@ class PersonnelManage extends Component {
     const payload = {
       uid,
       name,
-      position: position === 'all' ? null : position,
-      state: state === 'all' ? null : state,
       pageNum,
       pageSize,
     };
     dispatch({
-      type: 'personnelManage/fetchList',
+      type: 'accountManage/fetchList',
       payload,
     });
     dispatch({
-      type: 'personnelManage/save',
+      type: 'accountManage/save',
       payload: {
         choosedUid: uid,
         choosedName: name,
-        choosedPosition: position,
-        choosedState: state
       },
       index: 'comfirmData',
     });
@@ -123,31 +107,14 @@ class PersonnelManage extends Component {
   getColumns = () => {
     const { dispatch } = this.props
     const columns = [
+      { title: '编号', dataIndex: 'uid', key: 'uid' },
       { title: '工号', dataIndex: 'uID', key: 'uID' },
       { title: '姓名', dataIndex: 'name', key: 'name' },
       { title: '性别', dataIndex: 'sex', key: 'sex' },
       { title: '联系方式', dataIndex: 'phone', key: 'phone' },
       { title: '入职时长', dataIndex: 'time', key: 'time' },
       { title: '部门职位', dataIndex: 'position', key: 'position' },
-      { 
-        title: '状态', 
-        render: record => {
-          if (record.state) {
-            return (
-              <Row>
-                <Icon type="carry-out" theme="twoTone" twoToneColor="#43CD80" />
-                <span style={{ marginLeft: '8px' }}>在班</span>
-              </Row>
-            )
-          }
-          return (
-            <Row>
-              <Icon type="calendar" theme="twoTone" twoToneColor="#CD3333" />
-              <span style={{ marginLeft: '8px' }}>请假</span>
-            </Row>
-          )
-        }
-      },
+      { title: '权限', dataIndex: 'permissionsName', key: 'permissionsName' },
       {
         title: '操作',
         width: '30%',
@@ -156,50 +123,59 @@ class PersonnelManage extends Component {
             <span 
               className='spanToa' 
               onClick={() => { 
-                this.props.history.push({
-                  pathname: '/home/personnelManage/detail',
-                  query: {}
-                })
                 dispatch({
-                  type: 'personnelManage/getDetail',
+                  type: 'accountManage/getPermissions',
                   payload: {}
                 })
-              }}
-            >
-              查看详情
-            </span>
-            <Divider type="vertical" />
-            <span 
-              className='spanToa' 
-              onClick={() => { 
-                this.props.history.push({
-                  pathname: '/home/personnelManage/edit',
-                  query: { flag: 'edit', record: record }
+                this.setState({
+                  permissionsVisible: true,
+                  permissionsId: record.permissionsId,
+                  permissionsName: record.permissionsName
                 })
               }}
             >
-              修改信息
+              修改权限
             </span>
             <Divider type="vertical" />
             <Popconfirm
-              icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
-              title="确认辞退该员工么？"
+              title="确认将该员工的密码重置为123456么？"
               cancelText="取消"
               okText="确认"
               onConfirm={() => {
                 dispatch({
-                  type: 'personnelManage/del',
+                  type: 'accountManage/resetPassWord',
                   payload: {},
                 })
-                  .then(() => {
-                    message.success(`'${record.name}'辞退成功`);
+                  .then((res) => {
+                    message.success(`'${record.name}'密码重置成功`);
                   })
                   .catch(() => {
-                    message.error(`'${record.name}'辞退失败`);
+                    message.error(`'${record.name}'密码重置失败`);
                   });
               }}
             >
-              <span className='spanToa'>辞退</span>
+              <span className='spanToa'>重置密码</span>
+            </Popconfirm>
+            <Divider type="vertical" />
+            <Popconfirm
+              icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
+              title="确认删除该账号么？"
+              cancelText="取消"
+              okText="确认"
+              onConfirm={() => {
+                dispatch({
+                  type: 'accountManage/del',
+                  payload: {},
+                })
+                  .then(() => {
+                    message.success(`编号'${record.uid}'账号删除成功`);
+                  })
+                  .catch(() => {
+                    message.error(`编号'${record.uid}'账号删除失败`);
+                  });
+              }}
+            >
+              <span className='spanToa'>删除</span>
             </Popconfirm>
           </>
         )
@@ -210,31 +186,41 @@ class PersonnelManage extends Component {
 
   handleTableChange = (pagination, filters, sorter) => {
     const {
-      personnelManage: {
+      accountManage: {
         choosedUid = '',
         choosedName = '',
-        choosedPosition = 'all',
-        choosedState = 'all'
       },
       dispatch,
     } = this.props;
     const payload = {
       uid: choosedUid && (choosedUid.trim() || null),
       name: choosedName && (choosedName.trim() || null),
-      position: choosedPosition === 'all' ? null : choosedPosition,
-      state: choosedState === 'all' ? null : choosedState,
       pageNum: pagination.current,
       pageSize: pagination.pageSize,
     };
     dispatch({
-      type: 'personnelManage/fetchList',
+      type: 'accountManage/fetchList',
       payload,
     });
   };
 
+  changePermissions = () => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'accountManage/changePermissions',
+      payload: {},
+    })
+      .then((res) => {
+        if (res.code === 200) {
+          message.success('修改权限成功！')
+          this.setState({ permissionsVisible: false, permissionsId: '', permissionsName: '' })
+        }
+      })
+  }
+
   render () {
     const { 
-      personnelManage: { 
+      accountManage: { 
         list: { 
           data = [], 
           pageSize, 
@@ -242,13 +228,14 @@ class PersonnelManage extends Component {
           total 
         },
         currentParameter: {
-          uid, name, position, state
+          uid, name
         },
-        positions: { positions }
+        permissions: { permissions = []}
       }, 
       loading,
       dispatch
     } = this.props;
+    const { permissionsName } = this.state
     return (
       <>
       <Card>
@@ -260,7 +247,7 @@ class PersonnelManage extends Component {
               placeholder="请输入员工工号"
               onChange={value => {
                 dispatch({
-                  type: 'personnelManage/save',
+                  type: 'accountManage/save',
                   payload: { uid: value.target.value },
                   index: 'currentParameter',
                 });
@@ -276,7 +263,7 @@ class PersonnelManage extends Component {
               placeholder="请输入员工姓名"
               onChange={value => {
                 dispatch({
-                  type: 'personnelManage/save',
+                  type: 'accountManage/save',
                   payload: { name: value.target.value },
                   index: 'currentParameter',
                 });
@@ -286,52 +273,13 @@ class PersonnelManage extends Component {
             />
           </Col>
           <Col span={8}>
-            <span>部门职位</span>
-            <Select 
-              defaultValue="all" 
-              style={{ width: '100%' }}
-              onChange={value => {
-                dispatch({
-                  type: 'personnelManage/save',
-                  payload: { position: value },
-                  index: 'currentParameter',
-                });
-              }}
-              value={position}
-            >
-              <Option value="all">全部</Option>
-              {positions && positions.map((value, key) => {
-                return <Option value={value.pid} key={value.pid}>{value.name}</Option>
-              })}
-            </Select>
-          </Col>
-          <Col span={8}>
-            <span>员工状态</span>
-            <Select 
-              defaultValue="all" 
-              style={{ width: '100%' }}
-              onChange={value => {
-                dispatch({
-                  type: 'personnelManage/save',
-                  payload: { state: value },
-                  index: 'currentParameter',
-                });
-              }}
-              value={state}
-            >
-              <Option value="all">全部</Option>
-              <Option value='on'>在班</Option>
-              <Option value='off'>请假</Option>
-            </Select>
-          </Col>
-          <Col span={8}>
             <div className="btnContainer">
               <Button type="primary" onClick={this.query}>搜索</Button>
               <Button
                 type="default"
                 onClick={() => {
                   dispatch({
-                    type: 'personnelManage/reset',
+                    type: 'accountManage/reset',
                   });
                   this.query()
                 }}
@@ -344,14 +292,14 @@ class PersonnelManage extends Component {
       </Card>
       <br/>
       <Card 
-        title='员工列表'
+        title='账号列表'
         extra={
           <Button
             icon="plus"
             type="primary"
             onClick={() => { 
               this.props.history.push({
-                pathname: '/home/personnelManage/create',
+                pathname: '/home/accountManage/create',
                 query: { flag: 'create', record: null }
               })  
             }}
@@ -369,10 +317,33 @@ class PersonnelManage extends Component {
           pagination={{ total, pageSize, current }}
           onChange={this.handleTableChange}
         />
+        <Modal
+          title="修改权限"
+          visible={this.state.permissionsVisible}
+          onOk={this.changePermissions}
+          onCancel={() => { this.setState({ permissionsVisible: false }) }}
+          okText="确认"
+          cancelText="取消"
+        >
+          <Row>
+            <span>权限：</span>
+            <Select 
+              style={{ width: '90%' }}
+              onChange={(value, key) => {
+                this.setState({ permissionsName: value, permissionsId: key.key })
+              }}
+              value={permissionsName}
+            >
+              {permissions && permissions.map((value, key) => {
+                return <Option value={value.name} key={value.mid}>{value.name}</Option>
+              })}
+            </Select>
+          </Row>
+        </Modal>
       </Card>
       </>
     )
   }
 }
 
-export default PersonnelManage;
+export default AccountManage;

@@ -1,0 +1,84 @@
+html, 
+body {
+  .ant-card {
+    text-align: left;
+  }
+  /* .ant-card-body {
+    padding: 16px 24px;
+  } */
+  .ant-table-thead {
+    line-height: 14px;
+  }
+  .ant-table-row {
+    line-height: 12px;
+  }
+}
+:global(#root) {
+  height: 100%;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+.spanToa {
+  color: #FF8C00;
+  cursor: pointer;
+}
+
+.detailTitie {
+  height: 48px;
+  margin: 0 0 16px 0;
+  font-size: 20px;
+}
+
+.btnContainer{
+  // margin-top: 16px;
+  // margin-bottom: 16px;
+  button {
+    margin-right: 8px;
+  }
+}
+button.btnContainer {
+  margin-bottom: 16px;
+}
+
+.searchBox {
+  .ant-col-8 {
+    display: flex;
+    flex: 1 0;
+    align-items: center;
+    > * {
+      flex-grow: 1;
+      width: unset;
+    }
+  }
+
+  & > .ant-col-8 > span:nth-child(1) {
+    flex-grow: 0;
+    word-break: keep-all;
+    &::after{
+      margin-right: 8px;
+      content: ':';
+    }
+  }
+
+  .ant-col-24 {
+    display: flex;
+    flex: 1 0;
+    align-items: center;
+    > * {
+      flex-grow: 1;
+      width: unset;
+    }
+  }
+
+  & > .ant-col-24 > span:nth-child(1) {
+    flex-grow: 0;
+    word-break: keep-all;
+    &::after{
+      margin-right: 8px;
+      content: ':';
+    }
+  }
+}

@@ -11,12 +11,12 @@ const menus = {
     {
       title: "员工管理",
       icon: "user",
-      path: "/home/personnelManage",
+      path: "/home/personManage",
       children: [
         {
           title: "员工列表",
           icon: "user",
-          path: "/home/personnelManage/list"
+          path: "/home/personManage/list"
         },
         {
           title: "请假管理",

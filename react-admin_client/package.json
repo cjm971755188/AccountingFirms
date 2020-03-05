@@ -28,10 +28,10 @@
     "react-app-rewired": "^2.1.5",
     "react-dom": "^16.2.0",
     "react-router-config": "^5.1.1",
-    "react-scripts": "^3.3.1",
+    "react-scripts": "^3.4.0",
     "umi-request": "^1.2.18",
     "webpack": "^4.41.5",
-    "webpack-dev-server": "^3.10.1"
+    "webpack-dev-server": "^3.10.2"
   },
   "devDependencies": {
     "babel-plugin-dva-hmr": "^0.3.2",
@@ -70,5 +70,5 @@
       "react-app"
     ]
   },
-  "proxy": "http://192.168.3.103:3000"
+  "proxy": "http://localhost:3000"
 }

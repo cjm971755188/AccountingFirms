@@ -1,4 +1,4 @@
-const personnelManage = {
+const personManage = {
     code: 200,
     data: {
         data: [
@@ -15,4 +15,4 @@ const personnelManage = {
     msg: ''
 }
 
-export default personnelManage
+export default personManage

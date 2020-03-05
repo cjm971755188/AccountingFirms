@@ -18,7 +18,7 @@ app.use(createLoading());
 // 3. Model
 app.model(require('./models/user').default);
 app.model(require('./models/home').default);
-app.model(require('./models/personnelManage').default);
+app.model(require('./models/personManage').default);
 app.model(require('./models/customerManage').default);
 app.model(require('./models/businessManage').default);
 app.model(require('./models/leaveManage').default);

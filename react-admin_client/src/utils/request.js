@@ -1,7 +1,8 @@
 import fetch from 'dva/fetch';
 import { notification } from 'antd';
 import qs from 'querystring';
- 
+
+/* const apiUrl = "http://localhost:3000/" */
 const codeMessage = {
   200: '请求成功',
   201: '新建或修改数据成功',
@@ -44,7 +45,7 @@ function checkStatus(response) {
 // fetch超时处理
 const TIMEOUT = 100000;
 const timeoutFetch = (url, options) => {
-  let fetchPromise = fetch(url, options);
+  let fetchPromise = fetch(`${url}`, options);
   let timeoutPromise = new Promise((resolve, reject) => {
     setTimeout(() => reject(new Error('请求超时')), TIMEOUT);
   });
@@ -61,7 +62,7 @@ const timeoutFetch = (url, options) => {
 export default function request(url, options) {
   const defaultOptions = {
     credentials: 'include',
-    method: 'GET',
+    method: 'POST',
     mode: 'cors',
   };
   const mergeOptions = {
@@ -81,14 +82,18 @@ export default function request(url, options) {
  
   if (mergeOptions.method !== 'GET') {
     mergeOptions.body = JSON.stringify(mergeOptions.body);
+    console.log('GET: ', url)
   }
  
   if (mergeOptions.method !== 'POST' && mergeOptions.params) {
     url = `${url}${url.indexOf('?') !== -1 ? '&' : '?'}${qs.stringify(mergeOptions.params)}`;
+    console.log('POST: ', url)
   }
  
   if (!mergeOptions.hideTime && !mergeOptions.params) {
-    url = `${url}?timeStamp=${new Date().getTime()}`;
+    /* url = `${url}?timeStamp=${new Date().getTime()}`; */
+    url = `${url}`
+    console.log('url: ', url)
   }
  
   return timeoutFetch(url, mergeOptions)

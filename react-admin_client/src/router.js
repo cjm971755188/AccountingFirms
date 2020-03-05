@@ -6,10 +6,10 @@ import Reset from './pages/Z_User/Reset';
 import Home from './pages/Z_Home/Home';
 import Main from './pages/Main/Main';
 
-import PersonnelManage from './pages/PersonnelManage/PersonnelManage';
-import PersonCreate from './pages/PersonnelManage/PersonCreateEdit';
-import PersonDetail from './pages/PersonnelManage/PersonDetail';
-import PersonEdit from './pages/PersonnelManage/PersonCreateEdit';
+import PersonManage from './pages/PersonManage/PersonManage';
+import PersonCreate from './pages/PersonManage/PersonCreateEdit';
+import PersonDetail from './pages/PersonManage/PersonDetail';
+import PersonEdit from './pages/PersonManage/PersonCreateEdit';
 
 import CustomerManage from './pages/CustomerManage/CustomerManage';
 import CustomerCreate from './pages/CustomerManage/CustomerCreateEdit';
@@ -72,12 +72,12 @@ export default [
         exact: true,
       },
       { 
-        path: '/personnelManage', 
+        path: '/personManage', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: PersonnelManage, 
+            component: PersonManage, 
             exact: true,
           },
           { 

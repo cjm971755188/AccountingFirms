@@ -1,0 +1,11 @@
+{
+    "extraBabelPlugins": [
+       ["import", { "libraryName": "antd-mobile", "libraryDirectory": "es", "style": "css" }]
+     ],
+    "proxy": {
+        "/Api": {
+          "target": "http://192.168.3.103:3000/",
+          "changeOrigin": true
+        }
+      }
+}

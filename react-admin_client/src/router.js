@@ -6,37 +6,37 @@ import Reset from './pages/Z_User/Reset';
 import Home from './pages/Z_Home/Home';
 import Main from './pages/Main/Main';
 
-import PersonManage from './pages/PersonManage/PersonManage';
-import PersonCreate from './pages/PersonManage/PersonCreateEdit';
-import PersonDetail from './pages/PersonManage/PersonDetail';
-import PersonEdit from './pages/PersonManage/PersonCreateEdit';
+import PersonList from './pages/Person/PersonList';
+import PersonCreate from './pages/Person/PersonCreateEdit';
+import PersonDetail from './pages/Person/PersonDetail';
+import PersonEdit from './pages/Person/PersonCreateEdit';
 
-import CustomerManage from './pages/CustomerManage/CustomerManage';
-import CustomerCreate from './pages/CustomerManage/CustomerCreateEdit';
-import CustomerDetail from './pages/CustomerManage/CustomerDetail';
-import CustomerEdit from './pages/CustomerManage/CustomerCreateEdit';
+import CustomerList from './pages/Customer/CustomerList';
+import CustomerCreate from './pages/Customer/CustomerCreateEdit';
+import CustomerDetail from './pages/Customer/CustomerDetail';
+import CustomerEdit from './pages/Customer/CustomerCreateEdit';
 
-import BusinessManage from './pages/BusinessManage/BusinessManage';
-import BusinessCreate from './pages/BusinessManage/BusinessCreate';
-import BusinessHelp from './pages/BusinessManage/BusinessHelp';
+import BusinessList from './pages/Business/BusinessList';
+import BusinessCreate from './pages/Business/BusinessCreate';
+import BusinessHelp from './pages/Business/BusinessHelp';
 
-import LeaveManage from './pages/LeaveManage/LeaveManage';
-import LeaveCreate from './pages/LeaveManage/LeaveCreate';
+import LeaveList from './pages/Leave/LeaveList';
+import LeaveCreate from './pages/Leave/LeaveCreate';
 
-import PositionManage from './pages/PositionManage/PositionManage';
-import PositionCreate from './pages/PositionManage/PositionCreateEdit';
-import PositionEdit from './pages/PositionManage/PositionCreateEdit';
+import PositionList from './pages/Position/PositionList';
+import PositionCreate from './pages/Position/PositionCreateEdit';
+import PositionEdit from './pages/Position/PositionCreateEdit';
 
-import SettlementTypeManage from './pages/SettlementTypeManage/SettlementTypeManage';
-import SettlementTypeCreate from './pages/SettlementTypeManage/SettlementTypeCreateEdit';
-import SettlementTypeEdit from './pages/SettlementTypeManage/SettlementTypeCreateEdit';
+import CustomerTypeList from './pages/CustomerType/CustomerTypeList';
+import CustomerTypeCreate from './pages/CustomerType/CustomerTypeCreateEdit';
+import CustomerTypeEdit from './pages/CustomerType/CustomerTypeCreateEdit';
 
-import BusinessTypeManage from './pages/BusinessTypeManage/BusinessTypeManage';
-import BusinessTypeCreate from './pages/BusinessTypeManage/BusinessTypeCreate';
+import BusinessTypeList from './pages/BusinessType/BusinessTypeList';
+import BusinessTypeCreate from './pages/BusinessType/BusinessTypeCreate';
 
-import AccountManage from './pages/AccountManage/AccountManage';
+import AccountList from './pages/Account/AccountList';
 
-import PermissionsManage from './pages/PermissionsManage/PermissionsManage';
+import PermissionsList from './pages/Permissions/PermissionsList';
 
 export default [
   {
@@ -72,12 +72,12 @@ export default [
         exact: true,
       },
       { 
-        path: '/personManage', 
+        path: '/person', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: PersonManage, 
+            component: PersonList, 
             exact: true,
           },
           { 
@@ -98,12 +98,12 @@ export default [
         ]
       },
       { 
-        path: '/customerManage', 
+        path: '/customer', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: CustomerManage, 
+            component: CustomerList, 
             exact: true,
           },
           { 
@@ -124,12 +124,12 @@ export default [
         ]
       },
       { 
-        path: '/businessManage', 
+        path: '/business', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: BusinessManage, 
+            component: BusinessList, 
             exact: true,
           },
           { 
@@ -145,12 +145,12 @@ export default [
         ]
       },
       { 
-        path: '/leaveManage', 
+        path: '/leave', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: LeaveManage, 
+            component: LeaveList, 
             exact: true,
           },
           { 
@@ -161,12 +161,12 @@ export default [
         ]
       },
       { 
-        path: '/positionManage', 
+        path: '/position', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: PositionManage, 
+            component: PositionList, 
             exact: true,
           },
           { 
@@ -182,33 +182,33 @@ export default [
         ]
       },
       { 
-        path: '/settlementTypeManage', 
+        path: '/CustomerType', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: SettlementTypeManage, 
+            component: CustomerTypeList, 
             exact: true,
           },
           { 
             path: '/create', 
-            component: SettlementTypeCreate, 
+            component: CustomerTypeCreate, 
             exact: true,
           },
           { 
             path: '/edit',
-            component: SettlementTypeEdit, 
+            component: CustomerTypeEdit, 
             exact: true,
           },
         ]
       },
       { 
-        path: '/businessTypeManage', 
+        path: '/businessType', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: BusinessTypeManage, 
+            component: BusinessTypeList, 
             exact: true,
           },
           { 
@@ -219,12 +219,12 @@ export default [
         ]
       },
       { 
-        path: '/accountManage', 
+        path: '/account', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: AccountManage, 
+            component: AccountList, 
             exact: true,
           },
           /* { 
@@ -235,12 +235,12 @@ export default [
         ]
       },
       { 
-        path: '/permissionsManage', 
+        path: '/permissions', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: PermissionsManage, 
+            component: PermissionsList, 
             exact: true,
           },
           /* { 

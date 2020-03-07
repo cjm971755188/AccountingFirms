@@ -16,17 +16,17 @@ const app = dva({
 app.use(createLoading());
 
 // 3. Model
-app.model(require('./models/user').default);
-app.model(require('./models/home').default);
-app.model(require('./models/personManage').default);
-app.model(require('./models/customerManage').default);
-app.model(require('./models/businessManage').default);
-app.model(require('./models/leaveManage').default);
-app.model(require('./models/positionManage').default);
-app.model(require('./models/settlementTypeManage').default);
-app.model(require('./models/businessTypeManage').default);
-app.model(require('./models/accountManage').default);
-app.model(require('./models/permissionsManage').default);
+app.model(require('./pages/Z_Home/model').default);
+app.model(require('./pages/Z_User/model').default);
+app.model(require('./pages/Person/model').default);
+app.model(require('./pages/Customer/model').default);
+app.model(require('./pages/Business/model').default);
+app.model(require('./pages/Leave/model').default);
+app.model(require('./pages/Position/model').default);
+app.model(require('./pages/CustomerType/model').default);
+app.model(require('./pages/BusinessType/model').default);
+app.model(require('./pages/Account/model').default);
+app.model(require('./pages/Permissions/model').default);
 
 // 4. Router
 app.router(() =>

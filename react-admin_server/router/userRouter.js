@@ -21,12 +21,12 @@ router.post('/login', (req, res) => {
           res.send({
             code: 200,
             data: { 
-              uid: results[0].uid,
-              username: results[0].username,
-              name: results[0].name,
-              mid: results[0].mid,
-              absent: results[0].absent,
-              state: results[0].state,
+              "uid": results[0].uid,
+              "username": results[0].username,
+              "name": results[0].name,
+              "mid": results[0].mid,
+              "absent": results[0].absent,
+              "state": results[0].state,
             },
             msg: ''
           })

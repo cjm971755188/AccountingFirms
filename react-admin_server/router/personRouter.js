@@ -6,10 +6,10 @@ router.post('/getPersonList', (req, res) => {
   let params = req.body
   let sql = `SELECT * FROM user where state = 'unlock' and pid != '1' and username LIKE '%${params.username}%' and name LIKE '%${params.name}%'`
   if (params.pid !== 'all') {
-    sql = sql + ` and pid = ${params.pid}`
+    sql = sql + ` and pid = '${params.pid}'`
   }
   if (params.absent !== 'all') {
-    sql = sql + ` and absent = ${params.absent}`
+    sql = sql + ` and absent = '${params.absent}'`
   }
   sql = sql + ` ORDER BY uid`
   db.query(sql, (err, results) => {

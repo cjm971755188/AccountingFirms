@@ -25,7 +25,7 @@ class Login extends Component {
             if (res.msg === '') {
               this.props.history.push({
                 pathname: '/home',
-                query: {}
+                state: {}
               })
               message.success('登录成功！')
             } else {

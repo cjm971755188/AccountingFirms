@@ -5,6 +5,9 @@ const db = require('../config/db')
 router.post('/searchPerson', (req, res) => {
   let params = req.body
   let sql = `SELECT * FROM user where state = 'unlock' and pid != '1' and (username LIKE '%${params.username}%' or name LIKE '%${params.name}%')`
+  if (params.pid) {
+    sql = sql + ` and pid = '${params.pid}'`
+  }
   db.query(sql, (err, results) => {
     if (err) throw err;
     let _results = []

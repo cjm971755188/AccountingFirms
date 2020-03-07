@@ -4,7 +4,6 @@ import { connect } from 'dva';
 
 @connect(({ user, loading }) => ({
   user,
-  loading: loading.effects['user/getUser'],
 }))
 class Main extends Component {
   constructor(props) {

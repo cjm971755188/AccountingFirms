@@ -1,27 +1,26 @@
-import { withRouter } from 'react-router-dom';
-
 const menus = {
   code: 200,
   data: [
     {
       title: "首页",
       icon: "global",
-      path: "/home/main"
+      path: "/home/main",
+      check: true,
     },
     {
       title: "员工管理",
       icon: "user",
-      path: "/home/personManage",
+      path: "/home/person",
       children: [
         {
           title: "员工列表",
           icon: "user",
-          path: "/home/personManage/list"
+          path: "/home/person/list"
         },
         {
           title: "请假管理",
           icon: "robot",
-          path: "/home/leaveManage/list"
+          path: "/home/leave/list"
         },
         {
           title: "员工数据分析",
@@ -33,12 +32,12 @@ const menus = {
     {
       title: "客户管理",
       icon: "shop",
-      path: "/home/customerManage",
+      path: "/home/customer",
       children: [
         {
           title: "客户列表",
           icon: "shop",
-          path: "/home/customerManage/list"
+          path: "/home/customer/list"
         },
         {
           title: "客户数据分析",
@@ -50,12 +49,12 @@ const menus = {
     {
       title: "业务管理",
       icon: "audit",
-      path: "/home/businessManage",
+      path: "/home/business",
       children: [
         {
           title: "业务列表",
           icon: "audit",
-          path: "/home/businessManage/list"
+          path: "/home/business/list"
         },
         {
           title: "业务数据分析",
@@ -67,39 +66,39 @@ const menus = {
     {
       title: "配置管理",
       icon: "control",
-      path: "/home/othersManage",
+      path: "/home/others",
       children: [
         {
-          title: "员工职位管理",
+          title: "部门配置",
           icon: "branches",
-          path: "/home/positionManage/list"
+          path: "/home/position/list"
         },
         {
-          title: "结算类型管理",
+          title: "客户类型配置",
           icon: "dollar",
-          path: "/home/settlementTypeManage/list"
+          path: "/home/settlementType/list"
         },
         {
-          title: "业务类型管理",
+          title: "业务类型配置",
           icon: "tags",
-          path: "/home/businessTypeManage/list"
+          path: "/home/businessType/list"
         },
       ]
     },
     {
       title: "系统管理",
       icon: "setting",
-      path: "/home/settingManage",
+      path: "/home/setting",
       children: [
         {
           title: "账号管理",
           icon: "laptop",
-          path: "/home/accountManage/list"
+          path: "/home/account/list"
         },
         {
           title: "权限管理",
           icon: "eye",
-          path: "/home/permissionsManage/list"
+          path: "/home/permissions/list"
         },
       ]
     },
@@ -107,4 +106,4 @@ const menus = {
   msg: ''
 }
 
-export default withRouter(menus)
+export default menus

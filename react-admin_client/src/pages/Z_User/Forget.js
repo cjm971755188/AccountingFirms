@@ -14,7 +14,7 @@ class Forget extends Component {
         console.log('Received values of form: ', values);
         this.props.history.push({
           pathname: '/user/reset',
-          query: {}
+          state: {}
         })
       }
     });
@@ -68,7 +68,7 @@ class Forget extends Component {
             onClick={() => { 
               this.props.history.push({
                 pathname: '/user/login',
-                query: {}
+                state: {}
               })
             }}
           >

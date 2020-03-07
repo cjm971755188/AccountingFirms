@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { Card, Table, Button, Row, Col, Input, Popconfirm, message, Select, Icon, Divider, Modal, Tooltip } from 'antd';
+import { Card, Table, Button, Row, Col, Input, Popconfirm, message, Select, Icon, Divider, Modal, Tooltip, Timeline, Descriptions } from 'antd';
 import { connect } from 'dva';
+import moment from 'moment';
 
 const { Option } = Select;
 
-@connect(({ leaveManage, loading }) => ({
+@connect(({ leaveManage, user, loading }) => ({
   leaveManage,
+  user,
   loading: loading.effects['leaveManage/fetchList'],
   loadingApproval: loading.effects['leaveManage/approval'],
 }))
@@ -14,32 +16,24 @@ class LeaveManage extends Component {
     super(props);
     this.state = {
       detailVisibel: false,
-      approval: true
+      approval: true,
+      lid: 0
     }
   }
 
   UNSAFE_componentWillMount () {
     const {
       leaveManage: {
-        list: { pageSize = 10, pageNum = 0 },
+        list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
           name = '',
           type = 'all',
-          date = 'all',
-          state = 'all'
+          progress = 'all'
         },
       },
       history: { action },
       dispatch,
     } = this.props;
-    const payload = {
-      name,
-      type: type === 'all' ? null : type,
-      date: date === 'all' ? null : date,
-      state: state === 'all' ? null : state,
-      pageNum,
-      pageSize,
-    };
     if (action !== 'POP') {
       dispatch({
         type: 'leaveManage/reset',
@@ -47,11 +41,10 @@ class LeaveManage extends Component {
       dispatch({
         type: 'leaveManage/fetchList',
         payload: {
-          name: null,
-          type: null,
-          date: null,
-          state: null,
-          pageNum: 0,
+          name: "",
+          type: 'all',
+          progress: 'all',
+          pageNum: 1,
           pageSize,
         },
       });
@@ -60,23 +53,27 @@ class LeaveManage extends Component {
         payload: {
           choosedName: '',
           choosedType: 'all',
-          choosedDate: 'all',
-          choosedState: 'all'
+          choosedProgress: 'all'
         },
         index: 'comfirmData',
       });
     } else {
       dispatch({
         type: 'leaveManage/fetchList',
-        payload,
+        payload: {
+          name,
+          type,
+          progress,
+          pageNum,
+          pageSize,
+        },
       });
       dispatch({
         type: 'leaveManage/save',
         payload: {
           choosedName: name,
           choosedType: type,
-          choosedDate: date,
-          choosedState: state
+          choosedProgress: progress
         },
         index: 'comfirmData',
       });
@@ -86,47 +83,78 @@ class LeaveManage extends Component {
   query = () => {
     const {
       leaveManage: {
-        list: { pageSize = 10, pageNum = 0 },
+        list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
           name = '',
           type = 'all',
-          date = 'all',
-          state = 'all'
+          progress = 'all'
         },
       },
       dispatch,
     } = this.props;
-    const payload = {
-      name,
-      type: type === 'all' ? null : type,
-      date: date === 'all' ? null : date,
-      state: state === 'all' ? null : state,
-      pageNum,
-      pageSize,
-    };
     dispatch({
       type: 'leaveManage/fetchList',
-      payload,
+      payload: {
+        name,
+        type,
+        progress,
+        pageNum,
+        pageSize,
+      },
     });
     dispatch({
       type: 'leaveManage/save',
       payload: {
         choosedName: name,
         choosedType: type,
-        choosedDate: date,
-        choosedState: state
+        choosedProgress: progress
       },
       index: 'comfirmData',
     });
   };
 
+  reset = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'leaveManage/fetchList',
+      payload: {
+        name: '',
+        type: 'all',
+        progress: 'all',
+        pageNum: 1,
+        pageSize: 10,
+      },
+    });
+    dispatch({
+      type: 'leaveManage/reset',
+      payload: {}
+    });
+  };
+
   getColumns = () => {
     const { dispatch } = this.props
+    const { user: { user: { uid, name } } } = this.props
     const columns = [
-      { title: '编号', dataIndex: 'lid', key: 'lid' },
-      { title: '员工名称', dataIndex: 'accountant', key: 'accountant' },
+      { title: '员工名称', dataIndex: 'name', key: 'name' },
       { title: '请假类型', dataIndex: 'type', key: 'type' },
-      { title: '申请日期', dataIndex: 'date', key: 'date' },
+      { 
+        title: '申请日期', 
+        render: record => {
+          if (record.time) {
+            return <span>{moment(record.time).format('YYYY-MM-DD')}</span>
+          }
+          return null
+        }
+      },
+      { 
+        title: '请假日期', 
+        render: record => {
+          if (record.startTime && record.endTime) {
+            return <span>{moment(record.startTime).format('YYYY-MM-DD')}至{moment(record.endTime).format('YYYY-MM-DD')}</span>
+          }
+          return null
+        }
+      },
       { 
         title: '请假理由',
         dataIndex: 'detail', 
@@ -148,32 +176,39 @@ class LeaveManage extends Component {
       { 
         title: '状态', 
         render: record => {
-          if (record.state === '已通过') {
+          if (record.progress === '未审批') {
+            return (
+              <Row>
+                <Icon type="clock-circle" theme="twoTone" twoToneColor="#FFD700" />
+                <span style={{ marginLeft: '8px' }}>{record.progress}</span>
+              </Row>
+            )
+          } else if (record.progress === '已通过') {
             return (
               <Row>
                 <Icon type="check-circle" theme="twoTone" twoToneColor="#43CD80" />
-                <span style={{ marginLeft: '8px' }}>{record.state}</span>
+                <span style={{ marginLeft: '8px' }}>{record.progress}</span>
               </Row>
             )
-          } else if (record.state === '未通过') {
+          } else if (record.progress === '未通过') {
             return (
               <Row>
                 <Icon type="close-circle" theme="twoTone" twoToneColor="#CD3333" />
-                <span style={{ marginLeft: '8px' }}>{record.state}</span>
+                <span style={{ marginLeft: '8px' }}>{record.progress}</span>
               </Row>
             )
           }
           return (
             <Row>
-              <Icon type="clock-circle" theme="twoTone" twoToneColor="#FFD700" />
-              <span style={{ marginLeft: '8px' }}>{record.state}</span>
+              <Icon type="stop" theme="twoTone" twoToneColor="#CCCCCC" />
+              <span style={{ marginLeft: '8px' }}>{record.progress}</span>
             </Row>
           )
         }
       },
       {
         title: '操作',
-        width: '30%',
+        width: '20%',
         render: (text, record) => (
           <>
             <span 
@@ -181,36 +216,42 @@ class LeaveManage extends Component {
               onClick={() => { 
                 this.setState({
                   detailVisibel: true,
-                  approval: record.state === '未审批' ? true : false
+                  approval: record.progress === '未审批' ? true : false,
+                  lid: record.lid
                 })
                 dispatch({
                   type: 'leaveManage/getDetail',
-                  payload: {}
+                  payload: { lid: record.lid }
                 })
               }}
             >
-              {record.state === '未审批' ? '审批' : '查看详情'}
+              {record.progress === '未审批' ? '审批' : '查看详情'}
             </span>
-            <Divider type="vertical" />
+            {record.progress === '已作废' ? null : <><Divider type="vertical" />
             <Popconfirm
-              title="确认将该请假单删除么？"
+              title="确认将该请假单作废么？"
               cancelText="取消"
               okText="确认"
               onConfirm={() => {
                 dispatch({
-                  type: 'leaveManage/del',
-                  payload: {},
+                  type: 'leaveManage/approval',
+                  payload: { flag: '作废', lid: record.lid, uid, name },
                 })
                   .then((res) => {
-                    message.success(`'${record.name}'的请假单删除成功`);
+                    if (res.msg === '') {
+                      message.success(`'${record.name}'的请假单作废成功`);
+                      this.query();
+                    } else {
+                      message.error(res.msg)
+                    }
                   })
                   .catch(() => {
-                    message.error(`'${record.name}'的请假单删除失败`);
+                    message.error(`'${record.name}'的请假单作废失败`);
                   });
               }}
             >
-              <span className='spanToa'>删除</span>
-            </Popconfirm>
+              <span className='spanToa'>作废</span>
+            </Popconfirm></>}
           </>
         )
       }
@@ -223,16 +264,14 @@ class LeaveManage extends Component {
       leaveManage: {
         choosedName = '',
         choosedType = 'all',
-        choosedDate = 'all',
-        choosedState = 'all'
+        choosedProgress = 'all'
       },
       dispatch,
     } = this.props;
     const payload = {
       name: choosedName && (choosedName.trim() || null),
-      type: choosedType === 'all' ? null : choosedType,
-      date: choosedDate === 'all' ? null : choosedDate,
-      state: choosedState === 'all' ? null : choosedState,
+      type: choosedType,
+      progress: choosedProgress,
       pageNum: pagination.current,
       pageSize: pagination.pageSize,
     };
@@ -244,17 +283,22 @@ class LeaveManage extends Component {
 
   approval = (flag) => {
     const { dispatch } = this.props
+    const { user: { user: { uid, name } } } = this.props
+    const { lid } = this.state
     dispatch({
       type: 'leaveManage/approval',
-      payload: {
-        flag
-      }
+      payload: { flag, lid, uid, name }
     })
-      .then(() => {
-        this.setState({
-          detailVisibel: false
-        })
-        message.success('审批成功！')
+      .then((res) => {
+        if (res.msg === '') {
+          this.setState({
+            detailVisibel: false
+          })
+          message.success('审批成功！')
+          this.query();
+        } else {
+          message.error(res.msg)
+        }
       })
   }
 
@@ -264,13 +308,13 @@ class LeaveManage extends Component {
         list: { 
           data = [], 
           pageSize, 
-          current, 
+          pageNum, 
           total 
         },
         currentParameter: {
-          name, type, state, date
+          name, type, progress
         },
-        detail: { basis }
+        detail: { basis, timeLine }
       }, 
       loading,
       loadingApproval,
@@ -312,29 +356,9 @@ class LeaveManage extends Component {
               value={type}
             >
               <Option value="all">全部</Option>
-              <Option value='thing'>事假</Option>
-              <Option value='illness'>病假</Option>
-              <Option value='others'>其他</Option>
-            </Select>
-          </Col>
-          <Col span={8}>
-            <span>请假日期</span>
-            <Select 
-              defaultValue="all" 
-              style={{ width: '100%' }}
-              onChange={value => {
-                dispatch({
-                  type: 'leaveManage/save',
-                  payload: { data: value },
-                  index: 'currentParameter',
-                });
-              }}
-              value={date}
-            >
-              <Option value="all">全部</Option>
-              <Option value='today'>当天</Option>
-              <Option value='week'>最近一个星期</Option>
-              <Option value='month'>最近一个月</Option>
+              <Option value='事假'>事假</Option>
+              <Option value='病假'>病假</Option>
+              <Option value='其他'>其他</Option>
             </Select>
           </Col>
           <Col span={8}>
@@ -345,32 +369,23 @@ class LeaveManage extends Component {
               onChange={value => {
                 dispatch({
                   type: 'leaveManage/save',
-                  payload: { state: value },
+                  payload: { progress: value },
                   index: 'currentParameter',
                 });
               }}
-              value={state}
+              value={progress}
             >
               <Option value="all">全部</Option>
-              <Option value='noApproval'>未审批</Option>
-              <Option value='yes'>已通过</Option>
-              <Option value='no'>未通过</Option>
+              <Option value='未审批'>未审批</Option>
+              <Option value='已通过'>已通过</Option>
+              <Option value='未通过'>未通过</Option>
+              <Option value='已作废'>已作废</Option>
             </Select>
           </Col>
           <Col span={8}>
             <div className="btnContainer">
               <Button type="primary" onClick={this.query}>搜索</Button>
-              <Button
-                type="default"
-                onClick={() => {
-                  dispatch({
-                    type: 'leaveManage/reset',
-                  });
-                  this.query()
-                }}
-              >
-                重置
-              </Button>
+              <Button type="default" onClick={() => { this.reset() }}>重置</Button>
             </div>
           </Col>
         </Row>
@@ -379,13 +394,56 @@ class LeaveManage extends Component {
       <Card 
         title='请假列表'
         extra={
-          <Button
-            icon="plus"
-            type="primary"
-            onClick={() => { this.props.history.push('/home/leaveManage/create') }}
-          >
-            添加请假单
-          </Button>
+          <>
+            <Popconfirm
+              title="确认将所有已作废的请假单清除么？"
+              cancelText="取消"
+              okText="确认"
+              onConfirm={() => {
+                dispatch({
+                  type: 'leaveManage/del',
+                  payload: {},
+                })
+                  .then((res) => {
+                    if (res.msg === '') {
+                      message.success('清除成功！');
+                      this.query();
+                    } else {
+                      message.error(res.msg)
+                    }
+                  })
+                  .catch(() => {
+                    message.error('清除失败');
+                  });
+              }}
+            >
+              <Button icon="delete" style={{ marginRight: 8 }}>清除所有已作废请假单</Button>
+            </Popconfirm>
+            <Button
+              icon="plus"
+              style={{ marginRight: 8 }}
+              onClick={() => { 
+                this.props.history.push({
+                  pathname: '/home/leaveManage/create',
+                  query: { flag: 2 }
+                })
+              }}
+            >
+              请假（员工）
+            </Button>
+            <Button
+              icon="plus"
+              type="primary"
+              onClick={() => { 
+                this.props.history.push({
+                  pathname: '/home/leaveManage/create',
+                  query: { flag: 1 }
+                })
+              }}
+            >
+              添加请假单
+            </Button>
+          </>
         }
       >
         <Table
@@ -394,23 +452,23 @@ class LeaveManage extends Component {
           rowKey={row => row.pid}
           dataSource={data}
           columns={this.getColumns()}
-          pagination={{ total, pageSize, current }}
+          pagination={{ total, pageSize, current: pageNum }}
           onChange={this.handleTableChange}
         />
 
         <Modal
           title={approval ? "审批请假单": "查看详情"}
           visible={detailVisibel}
-          onOk={() => { this.approval('yes')}}
+          onOk={() => { this.approval('审批通过') }}
           onCancel={() => { this.setState({ detailVisibel: false })}}
           footer={approval ? [
             <Button key="back" onClick={() => { this.setState({ detailVisibel: false })}}>
               取消
             </Button>,
-            <Button key="submit" type="danger" loading={loadingApproval} onClick={() => { this.approval('no')}}>
+            <Button key="submit" type="danger" loading={loadingApproval} onClick={() => { this.approval('审批不通过') }}>
               不通过
             </Button>,
-            <Button key="submit" type="primary" loading={loadingApproval} onClick={() => { this.approval('yes')}}>
+            <Button key="submit" type="primary" loading={loadingApproval} onClick={() => { this.approval('审批通过') }}>
               通过
             </Button>,
           ] : [
@@ -422,14 +480,19 @@ class LeaveManage extends Component {
             </Button>,
           ]}
         >
-          {basis && Object.keys(basis).map((value, key) => {
-            return (
-              <Row style={{ margin: '8px 0' }}>
-                <Col span={6}>{value}: </Col>
-                <Col span={12}>{basis[value]}</Col>
-              </Row>
-            )
-          })}
+          <Descriptions title="请假信息" column={1}>
+            {basis && Object.keys(basis).map((value, key) => {
+              return <Descriptions.Item label={value}>{basis[value]}</Descriptions.Item>
+            })}
+          </Descriptions>
+          <Descriptions title="历史流程">
+            {timeLine && <Timeline>
+              <Timeline.Item>{timeLine.name} 在 {timeLine.time} 提出了 请假申请</Timeline.Item>
+              {timeLine.checkName ? <Timeline.Item color={timeLine.checkResult === '通过' ? "green" : 'red'}>{timeLine.checkName} 在 {timeLine.checkTime} {timeLine.checkResult}了 请假申请</Timeline.Item> : null}
+              {timeLine.invalidName ? <Timeline.Item color="gray">{timeLine.invalidName} 在 {timeLine.invalidTime} 作废 了请假申请</Timeline.Item> : null}
+            </Timeline>}
+          </Descriptions>
+          
         </Modal>
       </Card>
       </>

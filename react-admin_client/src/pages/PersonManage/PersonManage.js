@@ -6,7 +6,7 @@ const { Option } = Select;
 
 @connect(({ personManage, loading }) => ({
   personManage,
-  loading: loading.effects['personManage/getList'],
+  loading: loading.effects['personManage/fetchList'],
 }))
 class PersonManage extends Component {
   constructor(props) {
@@ -17,25 +17,17 @@ class PersonManage extends Component {
   UNSAFE_componentWillMount () {
     const {
       personManage: {
-        list: { pageSize = 10, pageNum = 0 },
+        list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
           username = '',
           name = '',
-          position = 'all',
-          state = 'all'
+          pid = 'all',
+          absent = 'all'
         },
       },
       history: { action },
       dispatch,
     } = this.props;
-    const payload = {
-      username,
-      name,
-      position: position === 'all' ? null : position,
-      state: state === 'all' ? null : state,
-      pageNum,
-      pageSize,
-    };
     if (action !== 'POP') {
       dispatch({
         type: 'personManage/reset',
@@ -43,11 +35,11 @@ class PersonManage extends Component {
       dispatch({
         type: 'personManage/fetchList',
         payload: {
-          username: null,
-          name: null,
-          position: null,
-          state: null,
-          pageNum: 0,
+          username: '',
+          name: '',
+          pid: 'all',
+          absent: 'all',
+          pageNum: 1,
           pageSize,
         },
       });
@@ -56,94 +48,123 @@ class PersonManage extends Component {
         payload: {
           choosedUsername: '',
           choosedName: '',
-          choosedPosition: 'all',
-          choosedState: 'all'
+          choosedPid: 'all',
+          choosedAbsent: 'all'
         },
         index: 'comfirmData',
       });
     } else {
       dispatch({
         type: 'personManage/fetchList',
-        payload,
+        payload: {
+          username,
+          name,
+          pid,
+          absent,
+          pageNum,
+          pageSize,
+        },
       });
       dispatch({
         type: 'personManage/save',
         payload: {
           choosedUsername: username,
           choosedName: name,
-          choosedPosition: position,
-          choosedState: state
+          choosedPid: pid,
+          choosedAbsent: absent
         },
         index: 'comfirmData',
       });
     }
-    dispatch({
-      type: 'personManage/getPositions',
-      payload: {}
-    })
   }
 
   query = () => {
     const {
       personManage: {
-        list: { pageSize = 10, pageNum = 0 },
+        list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
           username = '',
           name = '',
-          position = 'all',
-          state = 'all'
+          pid = 'all',
+          absent = 'all'
         },
       },
       dispatch,
     } = this.props;
-    const payload = {
-      username,
-      name,
-      position: position === 'all' ? null : position,
-      state: state === 'all' ? null : state,
-      pageNum,
-      pageSize,
-    };
     dispatch({
       type: 'personManage/fetchList',
-      payload,
+      payload: { username, name, pid, absent, pageNum, pageSize },
     });
     dispatch({
       type: 'personManage/save',
       payload: {
         choosedUsername: username,
         choosedName: name,
-        choosedPosition: position,
-        choosedState: state
+        choosedPid: pid,
+        choosedAbsent: absent
       },
       index: 'comfirmData',
     });
   };
 
+  reset = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'personManage/fetchList',
+      payload: { 
+        username: '',
+        name: '',
+        pid: 'all',
+        absent: 'all',
+        pageNum: 1,
+        pageSize: 10
+      },
+    });
+    dispatch({
+      type: 'personManage/reset',
+    })
+  };
+
   getColumns = () => {
-    const { dispatch } = this.props
+    const { 
+      personManage: { 
+        positions: { positions }
+      }, 
+      dispatch 
+    } = this.props
+    
     const columns = [
       { title: '工号', dataIndex: 'username', key: 'username' },
       { title: '姓名', dataIndex: 'name', key: 'name' },
       { title: '性别', dataIndex: 'sex', key: 'sex' },
       { title: '联系方式', dataIndex: 'phone', key: 'phone' },
-      { title: '入职时长', dataIndex: 'time', key: 'time' },
-      { title: '部门职位', dataIndex: 'position', key: 'position' },
       { 
-        title: '状态', 
+        title: '部门职位', 
         render: record => {
-          if (record.state) {
+          if (positions) {
+            for (let i = 0; i < positions.length; i++) {
+              if (record.pid === positions[i].pid) {
+                return <span>{positions[i].name}</span>
+              }
+            }
+          }
+        }
+      },
+      { 
+        title: '在班状态', 
+        render: record => {
+          if (record.absent === '在班') {
             return (
               <Row>
                 <Icon type="carry-out" theme="twoTone" twoToneColor="#43CD80" />
-                <span style={{ marginLeft: '8px' }}>在班</span>
+                <span style={{ marginLeft: '8px' }}>{record.absent}</span>
               </Row>
             )
           }
           return (
             <Row>
               <Icon type="calendar" theme="twoTone" twoToneColor="#CD3333" />
-              <span style={{ marginLeft: '8px' }}>请假</span>
+              <span style={{ marginLeft: '8px' }}>{record.absent}</span>
             </Row>
           )
         }
@@ -189,13 +210,15 @@ class PersonManage extends Component {
               onConfirm={() => {
                 dispatch({
                   type: 'personManage/del',
-                  payload: {},
+                  payload: { uid: record.uid },
                 })
                   .then(() => {
                     message.success(`'${record.name}'辞退成功`);
+                    this.query();
                   })
                   .catch(() => {
                     message.error(`'${record.name}'辞退失败`);
+                    this.query();
                   });
               }}
             >
@@ -213,16 +236,16 @@ class PersonManage extends Component {
       personManage: {
         choosedUsername = '',
         choosedName = '',
-        choosedPosition = 'all',
-        choosedState = 'all'
+        choosedPid = 'all',
+        choosedAbsent = 'all'
       },
       dispatch,
     } = this.props;
     const payload = {
       username: choosedUsername && (choosedUsername.trim() || null),
       name: choosedName && (choosedName.trim() || null),
-      position: choosedPosition === 'all' ? null : choosedPosition,
-      state: choosedState === 'all' ? null : choosedState,
+      pid: choosedPid,
+      absent: choosedAbsent,
       pageNum: pagination.current,
       pageSize: pagination.pageSize,
     };
@@ -237,12 +260,12 @@ class PersonManage extends Component {
       personManage: { 
         list: { 
           data = [], 
+          pageNum,
           pageSize, 
-          current, 
           total 
         },
         currentParameter: {
-          username, name, position, state
+          username, name, pid, absent
         },
         positions: { positions }
       }, 
@@ -293,11 +316,17 @@ class PersonManage extends Component {
               onChange={value => {
                 dispatch({
                   type: 'personManage/save',
-                  payload: { position: value },
+                  payload: { pid: value },
                   index: 'currentParameter',
                 });
               }}
-              value={position}
+              onFocus={() => {
+                dispatch({
+                  type: 'personManage/getPositions',
+                  payload: {}
+                })
+              }}
+              value={pid}
             >
               <Option value="all">全部</Option>
               {positions && positions.map((value, key) => {
@@ -313,31 +342,21 @@ class PersonManage extends Component {
               onChange={value => {
                 dispatch({
                   type: 'personManage/save',
-                  payload: { state: value },
+                  payload: { absent: value },
                   index: 'currentParameter',
                 });
               }}
-              value={state}
+              value={absent}
             >
               <Option value="all">全部</Option>
-              <Option value='on'>在班</Option>
-              <Option value='off'>请假</Option>
+              <Option value={1}>在班</Option>
+              <Option value={2}>请假</Option>
             </Select>
           </Col>
           <Col span={8}>
             <div className="btnContainer">
               <Button type="primary" onClick={this.query}>搜索</Button>
-              <Button
-                type="default"
-                onClick={() => {
-                  dispatch({
-                    type: 'personManage/reset',
-                  });
-                  this.query()
-                }}
-              >
-                重置
-              </Button>
+              <Button type="default" onClick={() => { this.reset() }}>重置</Button>
             </div>
           </Col>
         </Row>
@@ -366,7 +385,7 @@ class PersonManage extends Component {
           rowKey={row => row.username}
           dataSource={data}
           columns={this.getColumns()}
-          pagination={{ total, pageSize, current }}
+          pagination={{ total, pageSize, current: pageNum }}
           onChange={this.handleTableChange}
         />
       </Card>

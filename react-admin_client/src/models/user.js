@@ -1,7 +1,6 @@
-/* import { userLogin } from '../services/user'; */
+import { userLogin } from '../services/user';
 
 import getUser from '../mock/user/getUser'
-import def from '../mock/default'
 
 export default {
   namespace: 'user',
@@ -12,13 +11,15 @@ export default {
   effects: {
     *userLogin({ payload }, { call, put }) {
       try {
-        /* const res = yield call(userLogin, payload); */ 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(userLogin, payload);
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'user'
+        });
+        return Promise.resolve(res);
       } catch (e) {
+        console.log('e: ', e)
         return Promise.reject(e);
       }
     },

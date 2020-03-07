@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Form, Input, Icon, Button, message } from 'antd';
 import { connect } from 'dva';
 
-@connect(({ login, loading }) => ({ 
-  login,
+@connect(({ user, loading }) => ({ 
+  user,
   loading: loading.effects['user/userLogin'], 
 }))
 class Login extends Component {
@@ -22,11 +22,14 @@ class Login extends Component {
           payload: values
         })
           .then((res) => {
-            if (res.code === 200) {
+            if (res.msg === '') {
               this.props.history.push({
                 pathname: '/home',
-                query: { permissions: res.data.permissions }
+                query: {}
               })
+              message.success('登录成功！')
+            } else {
+              message.error(res.msg)
             }
           })
           .catch((e) => { message.error(e) })
@@ -64,12 +67,7 @@ class Login extends Component {
           )}
         </Form.Item>
         <Form.Item>
-          <a 
-            style={{ float: 'right' }} 
-            href="/user/forget"
-          >
-            忘记密码？
-          </a>
+          <a style={{ float: 'right' }} href="/user/forget">忘记密码？</a>
           <Button 
             type="primary" 
             htmlType="submit" 

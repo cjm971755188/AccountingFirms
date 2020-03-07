@@ -1,29 +1,23 @@
-/* import { getList, getDetail, getPosition, resetPassWord } from '../services/personnelManage'; */
-
-import getList from '../mock/leaveManage/getList'
-import getDetail from '../mock/leaveManage/getDetail'
-import def from '../mock/default'
+import { getLeaveList, createLeave, getDetail, approval, deleteLeave, searchPerson } from '../services/leaveManage';
 
 export default {
   namespace: 'leaveManage',
   state: {
     list: {
       data: [],
-      pageNum: 0,
+      pageNum: 1,
       pageSize: 10,
       total: 0
     },
     currentParameter: {
       name: '',
       type: 'all',
-      date: 'all',
-      state: 'all'
+      progress: 'all'
     },
     comfirmData: {
       choosedName: '',
       choosedType: 'all',
-      choosedDate: 'all',
-      choosedState: 'all',
+      choosedProgress: 'all',
     },
     detail: []
   },
@@ -31,25 +25,20 @@ export default {
   effects: {
     *fetchList({ payload }, { call, put }) {
       try {
-        /* const res = yield call(getList, payload); */ 
-        const res = getList
-        if (res.code === 200) {
-          yield put({
-            type: 'save',
-            payload: res.data,
-            index: 'list'
-          });
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(getLeaveList, payload);
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'list'
+        });
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
     *create({ payload }, { call, put }) {
       try {
-        /* const res = yield call(create, payload); */ 
-        const res = yield def
+        const res = yield call(createLeave, payload);
         if (res.code === 200) {
           return Promise.resolve(res);
         }
@@ -60,41 +49,37 @@ export default {
     },
     *getDetail({ payload }, { call, put }) {
       try {
-        /* const res = yield call(getDetail, payload); */ 
-        const res = getDetail
-        if (res.code === 200) {
-          yield put({
-            type: 'save',
-            payload: res.data,
-            index: 'detail'
-          });
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(getDetail, payload);
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'detail'
+        });
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
     *approval({ payload }, { call, put }) {
       try {
-        /* const res = yield call(create, payload); */ 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(approval, payload);
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
     *del({ payload }, { call, put }) {
       try {
-        /* const res = yield call(del, payload); */ 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(deleteLeave, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *searchPerson({ payload }, { call, put }) {
+      try {
+        const res = yield call(searchPerson, payload);
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
@@ -115,22 +100,19 @@ export default {
       return {
         ...state,
         list: {
-          data: [],
-          pageNum: 0,
+          pageNum: 1,
           pageSize: 10,
           total: 0
         },
         currentParameter: {
           name: '',
           type: 'all',
-          date: 'all',
-          state: 'all'
+          progress: 'all'
         },
         comfirmData: {
           choosedName: '',
           choosedType: 'all',
-          choosedDate: 'all',
-          choosedState: 'all',
+          choosedProgress: 'all',
         },
       };
     },

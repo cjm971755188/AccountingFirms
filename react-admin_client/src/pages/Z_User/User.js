@@ -6,7 +6,7 @@ import { connect } from 'dva';
 import routes from '../../router';
 import logo from '../../assets/logo.jpg'
 
-@connect(({ login }) => ({ login }))
+@connect(({ user }) => ({ user }))
 class User extends Component {
   constructor(props) {
     super(props);

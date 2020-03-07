@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Form, Input, Radio, Button, message, Select, Icon, Row } from 'antd';
+import { Card, Form, Input, Radio, Button, message, Select, Icon, Row, Modal } from 'antd';
 import { connect } from 'dva';
 
 const { Option } = Select;
@@ -14,27 +14,32 @@ class PersonCreateEdit extends Component {
     this.state = {}
   }
 
-  UNSAFE_componentWillMount () {
-    const { dispatch } = this.props
-    dispatch({
-      type: 'personManage/getPositions',
-      payload: {}
-    })
-  }
-
   handleSubmit = e => {
     const { dispatch } = this.props
-    const { flag } = this.props.history.location.query
+    const { flag, record } = this.props.history.location.query
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log('edit-values: ', values)
+      console.log('values: ', values)
       if (!err) {
         dispatch({
           type: flag === 'create' ? 'personManage/create' : 'personManage/edit',
-          payload: values
+          payload: flag === 'create' ? values : { uid: record.uid,  ...values }
         })
-          .then(() => {
-            message.success(flag === 'create' ? '添加员工成功！' : '修改员工信息成功！')
+          .then((res) => {
+            if (flag === 'create') {
+              Modal.info({
+                title: '添加员工成功！',
+                content: (
+                  <div>
+                    <p>新员工{values.name}的工号为：{res.data.username}，密码为：123456</p>
+                    <p>PS: 建议该员工先自行修改登录密码</p>
+                  </div>
+                ),
+                onOk() {},
+              })
+            } else {
+              message.success('修改员工信息成功！')
+            }
             this.props.history.replace('/home/personManage/list');
             this.props.form.resetFields();
           })
@@ -43,24 +48,25 @@ class PersonCreateEdit extends Component {
   };
 
   render () {
+    const { dispatch } = this.props
     const { getFieldDecorator, resetFields } = this.props.form;
     const { flag, record } = this.props.history.location.query
-    const { personManage: { positions: { positions = [] } } } = this.props
+    const { personManage: { positions: { positions = [] }, permissions: { permissions = [] } } } = this.props
     const formItemLayout = {
       labelCol: { span: 2 },
-      wrapperCol: { span: 6 },
+      wrapperCol: { span: 16 },
     }
     return (
       <Card title={flag === 'create' ? '添加员工' : '修改员工信息'}>
         <Form onSubmit={this.handleSubmit} layout='horizontal' labelAlign='left'>
           {flag === 'create' ? null : <Form.Item label='工号' {...formItemLayout}>
-            {getFieldDecorator('uID', {
-              initialValue: record.uID,
+            {getFieldDecorator('username', {
+              initialValue: record.username,
               rules: [
                 { required: true, message: '姓名不能为空!' },
               ],
             })(
-              <Input disabled />,
+              <Input disabled style={{ width: '50%' }} />,
             )}
           </Form.Item>}
           <Form.Item label='姓名' {...formItemLayout}>
@@ -70,7 +76,7 @@ class PersonCreateEdit extends Component {
                 { required: true, message: '姓名不能为空!' },
               ],
             })(
-              <Input placeholder="请输入员工姓名" />,
+              <Input placeholder="请输入员工姓名" style={{ width: '50%' }} />,
             )}
           </Form.Item>
           <Form.Item label='性别' {...formItemLayout}>
@@ -93,19 +99,51 @@ class PersonCreateEdit extends Component {
                 { required: true, message: '联系方式不能为空!' },
               ],
             })(
-              <Input placeholder="请输入员工的手机号" />,
+              <Input placeholder="请输入员工的手机号" style={{ width: '50%' }} />,
             )}
           </Form.Item>
           <Form.Item label='部门职位' {...formItemLayout}>
-            {getFieldDecorator('position', {
-              initialValue: flag === 'create' ? '' : record.position,
+            {getFieldDecorator('pid', {
+              initialValue: flag === 'create' ? '' : record.pid,
               rules: [
                 { required: true, message: '部门职位不能为空!' },
               ],
             })(
-              <Select placeholder="请选择员工的部门职位">
+              <Select 
+                placeholder="请选择员工的部门职位" 
+                style={{ width: '50%' }}
+                onFocus={() => {
+                  dispatch({
+                    type: 'personManage/getPositions',
+                    payload: {}
+                  })
+                }}
+              >
                 {positions && positions.map((value, key) => {
-                  return <Option value={value.name} key={value.pid}>{value.name}</Option>
+                  return <Option value={value.pid} key={value.pid}>{value.name}</Option>
+                })}
+              </Select>,
+            )}
+          </Form.Item>
+          <Form.Item label='权限' {...formItemLayout}>
+            {getFieldDecorator('mid', {
+              initialValue: flag === 'create' ? '' : record.mid,
+              rules: [
+                { required: true, message: '权限不能为空!' },
+              ],
+            })(
+              <Select 
+                placeholder="请选择员工的权限" 
+                style={{ width: '50%' }}
+                onFocus={() => {
+                  dispatch({
+                    type: 'personManage/getPermissions',
+                    payload: {}
+                  })
+                }}
+              >
+                {permissions && permissions.map((value, key) => {
+                  return <Option value={value.mid} key={value.mid}>{value.name}</Option>
                 })}
               </Select>,
             )}
@@ -113,7 +151,7 @@ class PersonCreateEdit extends Component {
           {flag === 'create' ? <Form.Item>
             <Row>
               <Icon type="info-circle" />
-              <span>注：员工账号添加后，工号将由系统决定，默认密码为123456，默认权限将于其职位匹配</span>
+              <span>注：员工账号添加后，默认密码为123456</span>
             </Row>
           </Form.Item>: null}
           <Form.Item>

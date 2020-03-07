@@ -12,14 +12,6 @@ class Main extends Component {
     this.state = {}
   }
 
-  UNSAFE_componentWillMount () {
-    const { dispatch } = this.props
-    dispatch({
-      type: 'user/getUser',
-      payload: {}
-    })
-  }
-
   getDate = () => {
     var now = new Date();
     var year = now.getFullYear(); //得到年份

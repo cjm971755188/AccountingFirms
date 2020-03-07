@@ -1,42 +1,35 @@
-import { getList } from '../services/personManage';
-
-/* import getList from '../mock/personManage/getList' */
-import getDetail from '../mock/personManage/getDetail'
-import getPosition from '../mock/personManage/getPositions'
-import def from '../mock/default'
+import { getPersonList, createPerson, editPerson, deletePerson, getPositions, getPermissions } from '../services/personManage';
 
 export default {
   namespace: 'personManage',
   state: {
     list: {
       data: [],
-      pageNum: 0,
+      pageNum: 1,
       pageSize: 10,
       total: 0
     },
     currentParameter: {
       username: '',
       name: '',
-      position: 'all',
-      state: 'all'
+      pid: 'all',
+      absent: 'all'
     },
     comfirmData: {
       choosedUsername: '',
       choosedName: '',
-      choosedPosition: 'all',
-      choosedState: 'all'
+      choosedPid: 'all',
+      choosedAbsent: 'all'
     },
     detail: [],
     positions: [],
+    permissions: []
   },
 
   effects: {
     *fetchList({ payload }, { call, put }) {
       try {
-        const res = yield call(getList, payload); 
-        /* const res = getList */
-        console.log('payload: ', payload)
-        console.log('res: ', res)
+        const res = yield call(getPersonList, payload);
         if (res.code === 200) {
           yield put({
             type: 'save',
@@ -52,8 +45,30 @@ export default {
     },
     *create({ payload }, { call, put }) {
       try {
-        /* const res = yield call(create, payload); */ 
-        const res = yield def
+        const res = yield call(createPerson, payload);
+        if (res.code === 200) {
+          return Promise.resolve(res);
+        }
+        return Promise.reject(res.msg);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *edit({ payload }, { call, put }) {
+      try {
+        const res = yield call(editPerson, payload);
+        console.log(res)
+        if (res.code === 200) {
+          return Promise.resolve(res);
+        }
+        return Promise.reject(res.msg);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *del({ payload }, { call, put }) {
+      try {
+        const res = yield call(deletePerson, payload);
         if (res.code === 200) {
           return Promise.resolve(res);
         }
@@ -64,8 +79,7 @@ export default {
     },
     *getDetail({ payload }, { call, put }) {
       try {
-        /* const res = yield call(getDetail, payload); */ 
-        const res = getDetail
+        const res = yield call(createPerson, payload);
         if (res.code === 200) {
           yield put({
             type: 'save',
@@ -79,22 +93,9 @@ export default {
         return Promise.reject(e);
       }
     },
-    *edit({ payload }, { call, put }) {
-      try {
-        /* const res = yield call(create, payload); */ 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    },
     *getPositions({ payload }, { call, put }) {
       try {
-        /* const res = yield call(getPosition, payload); */ 
-        const res = getPosition
+        const res = yield call(getPositions, payload);
         if (res.code === 200) {
           yield put({
             type: 'save',
@@ -108,18 +109,22 @@ export default {
         return Promise.reject(e);
       }
     },
-    *del({ payload }, { call, put }) {
+    *getPermissions({ payload }, { call, put }) {
       try {
-        /* const res = yield call(del, payload); */ 
-        const res = yield def
+        const res = yield call(getPermissions, payload);
         if (res.code === 200) {
+          yield put({
+            type: 'save',
+            payload: res.data,
+            index: 'permissions'
+          });
           return Promise.resolve(res);
         }
         return Promise.reject(res.msg);
       } catch (e) {
         return Promise.reject(e);
       }
-    },
+    }
   },
 
   reducers: {
@@ -136,22 +141,21 @@ export default {
       return {
         ...state,
         list: {
-          data: [],
-          pageNum: 0,
+          pageNum: 1,
           pageSize: 10,
           total: 0
         },
         currentParameter: {
           username: '',
           name: '',
-          position: 'all',
-          state: 'all'
+          pid: 'all',
+          absent: 'all'
         },
         comfirmData: {
           choosedUsername:'',
           choosedName: '',
-          choosedPosition: 'all',
-          choosedState: 'all'
+          choosedPid: 'all',
+          choosedAbsent: 'all'
         },
       };
     },

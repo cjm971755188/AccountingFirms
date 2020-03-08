@@ -16,9 +16,13 @@ class CustomerCreateEdit extends Component {
     const { flag, record } = this.props.history.location.state
     this.state = {
       visible: false,
-      uid: flag === 'create' ? null : record.cid,
+      uid: flag === 'create' ? null : record.uid,
       username: flag === 'create' ? null : record.username,
-      name: flag === 'create' ? null : record.name
+      uname: flag === 'create' ? null : record.uname,
+      ctid: flag === 'create' ? null : record.ctid,
+      ctName: flag === 'create' ? null : record.ctName,
+      sid: flag === 'create' ? null : record.sid,
+      salary: flag === 'create' ? null : record.salary,
     }
   }
 
@@ -26,18 +30,17 @@ class CustomerCreateEdit extends Component {
     const { record } = this.props.history.location.state
     if (record && record.isAccount === '是') {
       this.setState({
-        visible: true
+        visible: true,
       })
     }
   }
 
   handleSubmit = e => {
     const { dispatch } = this.props
-    const { uid, username, name } = this.state
+    const { uid, username, uname, ctid, sid } = this.state
     const { flag, record } = this.props.history.location.state
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log('create-values: ', values)
       if (!err) {
         dispatch({
           type: flag === 'create' ? 'customer/create' : 'customer/edit',
@@ -45,7 +48,9 @@ class CustomerCreateEdit extends Component {
             cid: flag === 'create' ? null : record.cid,
             uid,
             username,
-            uname: name,
+            uname,
+            ctid,
+            sid,
             ...values
           }
         })
@@ -66,10 +71,11 @@ class CustomerCreateEdit extends Component {
   };
 
   getPersonValues = (values) => {
+    console.log('values: ', values)
     this.setState({
       uid: values.uid,
       username: values.username,
-      name: values.name
+      uname: values.name
     })
   }
 
@@ -78,11 +84,12 @@ class CustomerCreateEdit extends Component {
     const { flag, record } = this.props.history.location.state
     const {
       customer: { 
-        customerTypes: { customerTypes = [] }
+        customerTypes: { customerTypes = [] },
+        salarys: { salarys = [] }
       },
       dispatch
     } = this.props
-    const { visible } = this.state
+    const { visible, ctid, salary, ctName } = this.state
     const formItemLayout = {
       labelCol: { span: 2 },
       wrapperCol: { span: 6 },
@@ -111,8 +118,8 @@ class CustomerCreateEdit extends Component {
             )}
           </Form.Item>
           <Form.Item label='结算类型' {...formItemLayout}>
-            {getFieldDecorator('ctid', {
-              initialValue: flag === 'create' ? '' : record.ctid,
+            {getFieldDecorator('ctName', {
+              initialValue: flag === 'create' ? '' : ctName,
               rules: [
                 { required: true, message: '结算类型不能为空!' },
               ],
@@ -125,23 +132,42 @@ class CustomerCreateEdit extends Component {
                     payload: {}
                   })
                 }}
+                onChange={(value, key) => {
+                  this.setState({ ctid: key.key })
+                  resetFields('salary', '');
+                }}
               >
                 {customerTypes && customerTypes.map((value, key) => {
-                  return <Option value={value.ctid} key={value.ctid}>{value.name}</Option>
+                  return <Option value={value.name} key={value.ctid}>{value.name}</Option>
                 })}
               </Select>,
             )}
           </Form.Item>
-          <Form.Item label='结算酬金' {...formItemLayout}>
+          {ctid === undefined ? null : <Form.Item label='结算酬金' {...formItemLayout}>
             {getFieldDecorator('salary', {
-              initialValue: flag === 'create' ? '' : record.salary,
+              initialValue: flag === 'create' ? '' : salary,
               rules: [
                 { required: true, message: '结算酬金不能为空!' },
               ],
             })(
-              <Input placeholder="请输入客户的结算酬金" />,
+              <Select 
+                placeholder="请选择客户的结算类型"
+                onFocus={() => {
+                  dispatch({
+                    type: 'customer/getSalarys',
+                    payload: { ctid }
+                  })
+                }}
+                onChange={(value, key) => {
+                  this.setState({ sid: key.key })
+                }}
+              >
+                {salarys && salarys.map((value, key) => {
+                  return <Option value={value.salary} key={value.sid}>{value.salary}</Option>
+                })}
+              </Select>,
             )}
-          </Form.Item>
+          </Form.Item>}
           <Form.Item label='是否做账' {...formItemLayout}>
             {getFieldDecorator('isAccount', {
               initialValue: flag === 'create' ? '' : record.isAccount,

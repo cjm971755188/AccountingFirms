@@ -44,9 +44,9 @@ router.post('/createCustomer', (req, res) => {
       const time = (new Date()).valueOf();
       let sql = ''
       if (params.isAccount === '是') {
-        sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', '${time}', '${params.ctid}', '${params.salary}', '${params.isAccount}', '${params.uid}', '${params.username}', '${params.uname}', '正常', 'unlock');`
+        sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', '${time}', '${params.ctid}', '${params.ctName}', '${params.sid}', '${params.salary}', '${params.isAccount}', '${params.uid}', '${params.username}', '${params.uname}', '正常', 'unlock');`
       } else {
-        sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', '${time}', '${params.ctid}', '${params.salary}', '${params.isAccount}', '', '', '', '正常', 'unlock');`
+        sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', '${time}', '${params.ctid}', '${params.ctName}', '${params.sid}', '${params.salary}', '${params.isAccount}', '', '', '', '正常', 'unlock');`
       }
       db.query(sql, (err, results) => {
         if (err) throw err;
@@ -58,23 +58,35 @@ router.post('/createCustomer', (req, res) => {
 
 router.post('/editCustomer', (req, res) => {
   let params = req.body
-  let s = `SELECT * FROM customer WHERE cid = '${params.cid}'`
-  db.query(s, (err, results) => {
-    if (err) throw err;
-    if (results.length === 0) res.send({ code: 200, data: {}, msg: '该客户公司不存在，不可修改信息！' })
-    else {
-      let sql = ''
-      if (params.isAccount === '是') {
-        sql = `UPDATE customer SET ID = '${params.ID}', name = '${params.name}', ctid = '${params.ctid}', salary = '${params.salary}', isAccount = '${params.isAccount}', uid = '${params.uid}', username = '${params.username}', uname = '${params.uname}' WHERE cid = ${params.cid};`
-      } else {
-        sql = `UPDATE customer SET ID = '${params.ID}', name = '${params.name}', ctid = '${params.ctid}', salary = '${params.salary}', isAccount = '${params.isAccount}', uid = '', username = '', uname = '' WHERE cid = ${params.cid};`
+  if (params.isAccount === '是' && params.uid === 0) {
+    res.send({ code: 200, data: {}, msg: '若该公司确认做账，负责会计不得为空！' })
+  } else {
+    let q = `SELECT * FROM salary WHERE salary = '${params.salary}' and ctid = '${params.ctid}'`
+    db.query(q, (err, result) => {
+      if (err) throw err;
+      console.log(result)
+      if (result.length === 0) res.send({ code: 200, data: {}, msg: '结算类型与结算酬金冲突，请确认选择！' })
+      else {
+        let s = `SELECT * FROM customer WHERE cid = '${params.cid}'`
+        db.query(s, (err, results) => {
+          if (err) throw err;
+          if (results.length === 0) res.send({ code: 200, data: {}, msg: '该客户公司不存在，不可修改信息！' })
+          else {
+            let sql = ''
+            if (params.isAccount === '是') {
+              sql = `UPDATE customer SET ID = '${params.ID}', name = '${params.name}', ctid = '${params.ctid}', ctName= '${params.ctName}', sid = '${params.sid}', salary= '${params.salary}', isAccount = '${params.isAccount}', uid = '${params.uid}', username = '${params.username}', uname = '${params.uname}' WHERE cid = ${params.cid};`
+            } else {
+              sql = `UPDATE customer SET ID = '${params.ID}', name = '${params.name}', ctid = '${params.ctid}', ctName= '${params.ctName}', sid = '${params.sid}', salary= '${params.salary}', isAccount = '${params.isAccount}', uid = '', username = '', uname = '' WHERE cid = ${params.cid};`
+            }
+            db.query(sql, (err, results) => {
+              if (err) throw err;
+              res.send({ code: 200, data: {}, msg: '' })
+            })
+          }
+        })
       }
-      db.query(sql, (err, results) => {
-        if (err) throw err;
-        res.send({ code: 200, data: {}, msg: '' })
-      })
-    }
-  })
+    })
+  }
 })
 
 router.post('/deleteCustomer', (req, res) => {
@@ -114,6 +126,17 @@ router.post('/getCustomerTypes', (req, res) => {
   db.query(sql, (err, results) => {
     if (err) throw err;
     res.send({ code: 200, data: { customerTypes: results }, msg: '' })
+  })
+})
+
+router.post('/getSalary', (req, res) => {
+  let params = req.body
+  let sql = ''
+  if (params.ctid === null) { sql = `SELECT * FROM salary` }
+  else { sql = `SELECT * FROM salary where ctid = '${params.ctid}'`}
+  db.query(sql, (err, results) => {
+    if (err) throw err;
+    res.send({ code: 200, data: { salarys: results }, msg: '' })
   })
 })
 

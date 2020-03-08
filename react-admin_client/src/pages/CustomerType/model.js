@@ -1,13 +1,11 @@
-import { getCustomerTypeList } from '../../services/customerType';
-
-import def from '../../mock/default'
+import { getCustomerTypeList, createCustomerType, editCustomerType, deleteCustomerType, getSalaryList, createSalary, editSalary, deleteSalary } from '../../services/customerType';
 
 export default {
   namespace: 'customerType',
   state: {
     list: {
       data: [],
-      pageNum: 0,
+      pageNum: 1,
       pageSize: 10,
       total: 0
     },
@@ -23,39 +21,68 @@ export default {
     *fetchList({ payload }, { call, put }) {
       try {
         const res = yield call(getCustomerTypeList, payload);
-        if (res.code === 200) {
-          yield put({
-            type: 'save',
-            payload: res.data,
-            index: 'list'
-          });
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'list'
+        });
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    *create({ payload }, { call, put }) {
+    *createCustomerType({ payload }, { call, put }) {
       try {
-        /* const res = yield call(create, payload); */ 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(createCustomerType, payload);
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    *del({ payload }, { call, put }) {
+    *editCustomerType({ payload }, { call, put }) {
       try {
-        /* const res = yield call(del, payload); */ 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(editCustomerType, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *deleteCustomerType({ payload }, { call, put }) {
+      try {
+        const res = yield call(deleteCustomerType, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *getSalaryList({ payload }, { call, put }) {
+      try {
+        const res = yield call(getSalaryList, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *createSalary({ payload }, { call, put }) {
+      try {
+        const res = yield call(createSalary, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *editSalary({ payload }, { call, put }) {
+      try {
+        const res = yield call(editSalary, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *deleteSalary({ payload }, { call, put }) {
+      try {
+        const res = yield call(deleteSalary, payload);
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
@@ -76,8 +103,7 @@ export default {
       return {
         ...state,
         list: {
-          data: [],
-          pageNum: 0,
+          pageNum: 1,
           pageSize: 10,
           total: 0
         },

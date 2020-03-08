@@ -1,14 +1,11 @@
-/* import { getList, getDetail, getPosition, resetPassWord } from '../services/personnel'; */
-
-import getList from '../../mock/businessType/getList'
-import def from '../../mock/default'
+import { getBusinessTypeList, createBusinessType, editBusinessType, deleteBusinessType, getGuideList, createGuide, editGuide, deleteGuide } from '../../services/businessType';
 
 export default {
   namespace: 'businessType',
   state: {
     list: {
       data: [],
-      pageNum: 0,
+      pageNum: 1,
       pageSize: 10,
       total: 0
     },
@@ -23,41 +20,72 @@ export default {
   effects: {
     *fetchList({ payload }, { call, put }) {
       try {
-        /* const res = yield call(getList, payload); */ 
-        const res = getList
-        if (res.code === 200) {
-          yield put({
-            type: 'save',
-            payload: res.data,
-            index: 'list'
-          });
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(getBusinessTypeList, payload);
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'list'
+        });
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    *create({ payload }, { call, put }) {
+    *createBusinessType({ payload }, { call, put }) {
       try {
-        /* const res = yield call(create, payload); */ 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(createBusinessType, payload);
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    *del({ payload }, { call, put }) {
+    *editBusinessType({ payload }, { call, put }) {
       try {
-        /* const res = yield call(del, payload); */ 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(editBusinessType, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *deleteBusinessType({ payload }, { call, put }) {
+      try {
+        const res = yield call(deleteBusinessType, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *getGuideList({ payload }, { call, put }) {
+      try {
+        const res = yield call(getGuideList, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *createGuide({ payload }, { call, put }) {
+      console.log('payload: ', payload)
+      try {
+        const res = yield call(createGuide, payload);
+        console.log('res: ', res)
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *editGuide({ payload }, { call, put }) {
+      try {
+        console.log('payload: ', payload)
+        const res = yield call(editGuide, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *deleteGuide({ payload }, { call, put }) {
+      try {
+        const res = yield call(deleteGuide, payload);
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
@@ -78,8 +106,7 @@ export default {
       return {
         ...state,
         list: {
-          data: [],
-          pageNum: 0,
+          pageNum: 1,
           pageSize: 10,
           total: 0
         },

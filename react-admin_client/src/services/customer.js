@@ -11,3 +11,5 @@ export function deleteCustomer(params) { return request('/customer/deleteCustome
 export function didPay(params) { return request('/customer/didPay', { method: 'POST', body: { ...params } }) }
 
 export function getCustomerTypes(params) { return request('/customer/getCustomerTypes', { method: 'POST', body: { ...params } }) }
+
+export function getSalary(params) { return request('/customer/getSalary', { method: 'POST', body: { ...params } }) }

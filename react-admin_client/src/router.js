@@ -30,9 +30,14 @@ import PositionEdit from './pages/Position/PositionCreateEdit';
 import CustomerTypeList from './pages/CustomerType/CustomerTypeList';
 import CustomerTypeCreate from './pages/CustomerType/CustomerTypeCreateEdit';
 import CustomerTypeEdit from './pages/CustomerType/CustomerTypeCreateEdit';
+import SalaryCreate from './pages/CustomerType/SalaryCreateEdit';
+import SalaryEdit from './pages/CustomerType/SalaryCreateEdit';
 
 import BusinessTypeList from './pages/BusinessType/BusinessTypeList';
-import BusinessTypeCreate from './pages/BusinessType/BusinessTypeCreate';
+import BusinessTypeCreate from './pages/BusinessType/BusinessTypeCreateEdit';
+import BusinessTypeEdit from './pages/BusinessType/BusinessTypeCreateEdit';
+import GuideCreate from './pages/BusinessType/GuideCreateEdit';
+import GuideEdit from './pages/BusinessType/GuideCreateEdit';
 
 import AccountList from './pages/Account/AccountList';
 
@@ -191,13 +196,23 @@ export default [
             exact: true,
           },
           { 
-            path: '/create', 
+            path: '/createCustomerType', 
             component: CustomerTypeCreate, 
             exact: true,
           },
           { 
-            path: '/edit',
+            path: '/editCustomerType',
             component: CustomerTypeEdit, 
+            exact: true,
+          },
+          { 
+            path: '/createSalary', 
+            component: SalaryCreate, 
+            exact: true,
+          },
+          { 
+            path: '/editSalary',
+            component: SalaryEdit, 
             exact: true,
           },
         ]
@@ -212,8 +227,23 @@ export default [
             exact: true,
           },
           { 
-            path: '/create', 
+            path: '/createBusinessType', 
             component: BusinessTypeCreate, 
+            exact: true,
+          },
+          { 
+            path: '/editBusinessType', 
+            component: BusinessTypeEdit, 
+            exact: true,
+          },
+          { 
+            path: '/createGuide', 
+            component: GuideCreate, 
+            exact: true,
+          },
+          { 
+            path: '/editGuide',
+            component: GuideEdit, 
             exact: true,
           },
         ]

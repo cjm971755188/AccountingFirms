@@ -2,13 +2,11 @@ import React, { Component } from 'react';
 import { Card, Form, Input, Button, message } from 'antd';
 import { connect } from 'dva';
 
-const { TextArea } = Input;
-
 @connect(({ customerType, loading }) => ({
   customerType,
-  loading: loading.effects['customerType/createCustomerType'] || loading.effects['customerType/editCustomerType'],
+  loading: loading.effects['customerType/createSalary'] || loading.effects['customerType/editSalary'],
 }))
-class CustomerTypeCreateEdit extends Component {
+class SalaryCreateEdit extends Component {
   constructor(props) {
     super(props);
     this.state = {}
@@ -21,15 +19,17 @@ class CustomerTypeCreateEdit extends Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         dispatch({
-          type: flag === 'create' ? 'customerType/createCustomerType': 'customerType/editCustomerType',
+          type: flag === 'create' ? 'customerType/createSalary': 'customerType/editSalary',
           payload: {
-            ctid: flag === 'create' ? null : record.ctid,
+            ctid: record.ctid,
+            sid: flag === 'create' ? null : record.sid,
+            ctName: record.name,
             ...values
           }
         })
           .then((res) => {
             if (res.msg === '') {
-              message.success(flag === 'create' ? '添加结算类型成功！': '修改结算类型成功！')
+              message.success(flag === 'create' ? '添加酬金类型成功！': '修改酬金金额成功！')
               this.props.history.replace('/home/customerType/list');
               this.props.form.resetFields();
             } else {
@@ -51,31 +51,26 @@ class CustomerTypeCreateEdit extends Component {
       wrapperCol: { span: 6 },
     }
     return (
-      <Card title={flag === 'create' ? '添加结算类型' : '修改结算类型信息'}>
+      <Card title={flag === 'create' ? '添加酬金类型' : '修改酬金金额'}>
         <Form onSubmit={this.handleSubmit} layout='horizontal' labelAlign='left'>
-          <Form.Item label='结算类型名称' {...formItemLayout}>
-            {getFieldDecorator('name', {
-              initialValue: flag === 'create' ? '' : record.name,
+          {flag === 'create' ? null : <Form.Item label='结算类型名称' {...formItemLayout}>
+            {getFieldDecorator('ctName', {
+              initialValue: flag === 'create' ? '' : record.ctName,
               rules: [
                 { required: true, message: '结算类型名称不能为空!' },
               ],
             })(
-              <Input placeholder="请输入结算类型名称" />,
+              <Input disabled />,
             )}
-          </Form.Item>
-          <Form.Item label='描述' {...formItemLayout}>
-            {getFieldDecorator('description', {
-              initialValue: flag === 'create' ? '' : record.description,
+          </Form.Item>}
+          <Form.Item label='酬金金额' {...formItemLayout}>
+            {getFieldDecorator('salary', {
+              initialValue: flag === 'create' ? '' : record.salary,
               rules: [
-                { required: true, message: '结算类型名称不能为空!' },
+                { required: true, message: '酬金金额不能为空!' },
               ],
             })(
-              <TextArea
-                allowClear 
-                placeholder="请输入结算类型的描述（不得超过100个字符）"
-                maxLength={100}
-                autoSize={{ minRows: 4, maxRows: 10 }}
-              />
+              <Input placeholder="请输入酬金金额" />,
             )}
           </Form.Item>
           <Form.Item>
@@ -97,6 +92,6 @@ class CustomerTypeCreateEdit extends Component {
   }
 }
 
-const CustomerTypeForm  = Form.create({ name: 'customerType' })(CustomerTypeCreateEdit);
+const SalaryForm  = Form.create({ name: 'salary' })(SalaryCreateEdit);
 
-export default CustomerTypeForm ;
+export default SalaryForm ;

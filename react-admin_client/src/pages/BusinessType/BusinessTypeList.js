@@ -2,20 +2,22 @@ import React, { Component } from 'react';
 import { Card, Table, Button, Row, Col, Input, Popconfirm, message, Divider, Tooltip } from 'antd';
 import { connect } from 'dva';
 
-@connect(({ businessTypeManage, loading }) => ({
-  businessTypeManage,
-  loading: loading.effects['businessTypeManage/fetchList'],
+@connect(({ businessType, loading }) => ({
+  businessType,
+  loading: loading.effects['businessType/fetchList'],
 }))
-class BusinessTypeManage extends Component {
+class BusinessType extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.state = {
+      subList: {}
+    }
   }
 
   UNSAFE_componentWillMount () {
     const {
-      businessTypeManage: {
-        list: { pageSize = 10, pageNum = 0 },
+      businessType: {
+        list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
           name = '',
         },
@@ -23,25 +25,20 @@ class BusinessTypeManage extends Component {
       history: { action },
       dispatch,
     } = this.props;
-    const payload = {
-      name,
-      pageNum,
-      pageSize,
-    };
     if (action !== 'POP') {
       dispatch({
-        type: 'businessTypeManage/reset',
+        type: 'businessType/reset',
       });
       dispatch({
-        type: 'businessTypeManage/fetchList',
+        type: 'businessType/fetchList',
         payload: {
-          name: null,
-          pageNum: 0,
+          name: '',
+          pageNum: 1,
           pageSize,
         },
       });
       dispatch({
-        type: 'businessTypeManage/save',
+        type: 'businessType/save',
         payload: {
           choosedName: '',
         },
@@ -49,11 +46,15 @@ class BusinessTypeManage extends Component {
       });
     } else {
       dispatch({
-        type: 'businessTypeManage/fetchList',
-        payload,
+        type: 'businessType/fetchList',
+        payload: {
+          name,
+          pageNum,
+          pageSize,
+        },
       });
       dispatch({
-        type: 'businessTypeManage/save',
+        type: 'businessType/save',
         payload: {
           choosedName: name,
         },
@@ -64,29 +65,44 @@ class BusinessTypeManage extends Component {
 
   query = () => {
     const {
-      businessTypeManage: {
-        list: { pageSize = 10, pageNum = 0 },
+      businessType: {
+        list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
           name = '',
         },
       },
       dispatch,
     } = this.props;
-    const payload = {
-      name,
-      pageNum,
-      pageSize,
-    };
     dispatch({
-      type: 'businessTypeManage/fetchList',
-      payload,
+      type: 'businessType/fetchList',
+      payload: {
+        name,
+        pageNum,
+        pageSize,
+      },
     });
     dispatch({
-      type: 'businessTypeManage/save',
+      type: 'businessType/save',
       payload: {
         choosedName: name,
       },
       index: 'comfirmData',
+    });
+  };
+
+  reset = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'businessType/fetchList',
+      payload: {
+        name: '',
+        pageNum: 1,
+        pageSize: 10,
+      },
+    });
+    dispatch({
+      type: 'businessType/reset',
+      payload: {},
     });
   };
 
@@ -99,7 +115,7 @@ class BusinessTypeManage extends Component {
         title: '类型描述',
         dataIndex: 'description', 
         key: 'description', 
-        width: '20%', 
+        width: '30%', 
         onCell: () => {
           return {
             style: {
@@ -120,9 +136,34 @@ class BusinessTypeManage extends Component {
           <>
             <span 
               className='spanToa' 
-              onClick={() => { this.props.history.push('/home/businessTypeManage/detail') }}
+              onClick={() => {
+                this.props.history.push({
+                  pathname: '/home/businessType/editBusinessType',
+                  state: { flag: 'edit', record: record }
+                })
+              }}
             >
-              查看详情
+              修改信息
+            </span>
+            <Divider type="vertical" />
+            <span 
+              className='spanToa' 
+              onClick={() => {
+                dispatch({
+                  type: 'businessType/getGuideList',
+                  payload: { btid: record.btid },
+                })
+                  .then((res) => {
+                    if (res.msg === '') {
+                      this.props.history.push({
+                        pathname: '/home/businessType/createGuide',
+                        state: { flag: 'create', record: record, steps: res.data.data.length }
+                      })
+                    }
+                  })
+              }}
+            >
+              添加新步骤            
             </span>
             <Divider type="vertical" />
             <Popconfirm
@@ -131,14 +172,20 @@ class BusinessTypeManage extends Component {
             okText="确认"
             onConfirm={() => {
               dispatch({
-                type: 'businessTypeManage/del',
-                payload: {},
+                type: 'businessType/deleteBusinessType',
+                payload: { btid: record.btid },
               })
                 .then((res) => {
-                  message.success(`'${record.name}'类型删除成功`);
+                  if (res.msg === '') {
+                    message.success(`业务类型'${record.name}'删除成功`);
+                  } else {
+                    message.error(res.msg)
+                  }
+                  this.query();
                 })
-                .catch(() => {
-                  message.error(`'${record.name}'类型删除失败`);
+                .catch((e) => {
+                  message.error(e);
+                  this.query();
                 });
             }}
           >
@@ -153,7 +200,7 @@ class BusinessTypeManage extends Component {
 
   handleTableChange = (pagination, filters, sorter) => {
     const {
-      businessTypeManage: {
+      businessType: {
         choosedName = '',
       },
       dispatch,
@@ -164,18 +211,109 @@ class BusinessTypeManage extends Component {
       pageSize: pagination.pageSize,
     };
     dispatch({
-      type: 'businessTypeManage/fetchList',
+      type: 'businessType/fetchList',
       payload,
     });
   };
 
+  expandedRowRender = (record) => {
+    const { dispatch } = this.props;
+    const { subList } = this.state
+    const columns = [
+      { title: '步骤', dataIndex: 'step', key: 'step' },
+      { title: '主题', dataIndex: 'title', key: 'title' },
+      { 
+        title: '具体描述',
+        dataIndex: 'detail', 
+        key: 'detail', 
+        width: '40%', 
+        onCell: () => {
+          return {
+            style: {
+              maxWidth: 150,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow:'ellipsis',
+              cursor:'pointer'
+            }
+          }
+        },
+        render: (text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>
+      },
+      {
+        title: '操作',
+        width: '30%',
+        render: (text, record) => (
+          <>
+            <span 
+              className='spanToa' 
+              onClick={() => { 
+                this.props.history.push({
+                  pathname: '/home/businessType/editGuide',
+                  state: { flag: 'edit', record: record }
+                })
+              }}
+            >
+              修改信息
+            </span>
+            <Divider type="vertical" />
+            <Popconfirm
+              title="确认将该步骤删除么？"
+              cancelText="取消"
+              okText="确认"
+              onConfirm={() => {
+                dispatch({
+                  type: 'businessType/deleteGuide',
+                  payload: { gid: record.gid, step: record.step },
+                })
+                  .then((res) => {
+                    if (res.msg === '') {
+                      message.success(`业务步骤'${record.title}'删除成功`);
+                    } else {
+                      message.error(res.msg)
+                    }
+                    this.onExpand(record);
+                  })
+                  .catch((e) => {
+                    message.error(e);
+                    this.onExpand(record);
+                  });
+              }}
+            >
+              <span className='spanToa'>删除</span>
+            </Popconfirm>
+          </>
+        )
+      }
+    ];
+    return <Table columns={columns} dataSource={subList[record.btid]} pagination={false} rowKey={row => row.gid} style={{ margin: 2 }} />
+  };
+
+  onExpand = (record) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'businessType/getGuideList',
+      payload: { btid: record.btid },
+    })
+      .then((res) => {
+        if (res.msg === '') {
+          let temp = this.state.subList
+          let list = res.data.data
+          temp[record.btid] = list
+          this.setState({
+            subList: temp
+          })
+        }
+      })
+  }
+
   render () {
     const { 
-      businessTypeManage: { 
+      businessType: { 
         list: { 
           data = [], 
           pageSize, 
-          current, 
+          pageNum, 
           total 
         },
         currentParameter: {
@@ -190,13 +328,13 @@ class BusinessTypeManage extends Component {
       <Card>
         <Row gutter={[48, 16]} className='searchBox'>
           <Col span={8}>
-            <span>类型名称</span>
+            <span>业务类型</span>
             <Input
               style={{ width: '100%' }}
               placeholder="请输入业务类型名称"
               onChange={value => {
                 dispatch({
-                  type: 'businessTypeManage/save',
+                  type: 'businessType/save',
                   payload: { name: value.target.value },
                   index: 'currentParameter',
                 });
@@ -208,17 +346,7 @@ class BusinessTypeManage extends Component {
           <Col span={8}>
             <div className="btnContainer">
               <Button type="primary" onClick={this.query}>搜索</Button>
-              <Button
-                type="default"
-                onClick={() => {
-                  dispatch({
-                    type: 'businessTypeManage/reset',
-                  });
-                  this.query()
-                }}
-              >
-                重置
-              </Button>
+              <Button type="default" onClick={() => { this.reset() }}>重置</Button>
             </div>
           </Col>
         </Row>
@@ -230,7 +358,12 @@ class BusinessTypeManage extends Component {
           <Button
             icon="plus"
             type="primary"
-            onClick={() => { this.props.history.push('/home/businessTypeManage/create') }}
+            onClick={() => {
+              this.props.history.push({
+                pathname: '/home/businessType/createBusinessType',
+                state: { flag: 'create', record: null }
+              })
+            }}
           >
             添加类型
           </Button>
@@ -242,8 +375,10 @@ class BusinessTypeManage extends Component {
           rowKey={row => row.pid}
           dataSource={data}
           columns={this.getColumns()}
-          pagination={{ total, pageSize, current }}
+          pagination={{ total, pageSize, current: pageNum }}
           onChange={this.handleTableChange}
+          expandedRowRender={this.expandedRowRender}
+          onExpand={(expanded, record) => { this.onExpand(record) }}
         />
       </Card>
       </>
@@ -251,4 +386,4 @@ class BusinessTypeManage extends Component {
   }
 }
 
-export default BusinessTypeManage;
+export default BusinessType;

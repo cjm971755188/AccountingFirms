@@ -1,4 +1,4 @@
-import { getCustomerList, createCustomer, editCustomer, deleteCustomer, didPay, getCustomerTypes } from '../../services/customer';
+import { getCustomerList, createCustomer, editCustomer, deleteCustomer, didPay, getCustomerTypes, getSalary } from '../../services/customer';
 
 export default {
   namespace: 'customer',
@@ -22,7 +22,8 @@ export default {
       choosedCredit: 'all'
     },
     detail: [],
-    customerTypes: []
+    customerTypes: [],
+    salarys: []
   },
 
   effects: {
@@ -101,6 +102,22 @@ export default {
             type: 'save',
             payload: res.data,
             index: 'customerTypes'
+          });
+          return Promise.resolve(res);
+        }
+        return Promise.reject(res.msg);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *getSalarys({ payload }, { call, put }) {
+      try {
+        const res = yield call(getSalary, payload); 
+        if (res.code === 200) {
+          yield put({
+            type: 'save',
+            payload: res.data,
+            index: 'salarys'
           });
           return Promise.resolve(res);
         }

@@ -80,10 +80,6 @@ class Customer extends Component {
         index: 'comfirmData',
       });
     }
-    dispatch({
-      type: 'customer/getCustomerTypes',
-      payload: {},
-    });
   }
 
   query = () => {
@@ -143,20 +139,10 @@ class Customer extends Component {
 
   getColumns = () => {
     const { dispatch } = this.props
-    const { customer: { customerTypes: { customerTypes = [] } }} = this.props
     const columns = [
       { title: '税号', dataIndex: 'ID', key: 'ID' },
       { title: '客户公司名称', dataIndex: 'name', key: 'name' },
-      { 
-        title: '结算类型',
-        render: record => {
-          for (let i = 0; i < customerTypes.length; i++) {
-            if (record.ctid === customerTypes[i].ctid) {
-              return <span>{customerTypes[i].name}</span>
-            }
-          }
-        }
-      },
+      { title: '结算类型', dataIndex: 'ctName', key: 'ctName' },
       { title: '结算酬金', dataIndex: 'salary', key: 'salary' },
       { title: '是否做账', dataIndex: 'isAccount', key: 'isAccount' },
       { title: '负责会计', dataIndex: 'uname', key: 'uname' },
@@ -243,18 +229,18 @@ class Customer extends Component {
                   type: 'customer/del',
                   payload: { cid: record.cid },
                 })
-                .then((res) => {
-                  if (res.msg === '') {
-                    message.success(`'${record.name}'删除成功`);
-                  } else {
-                    message.error(res.msg)
-                  }
-                  this.query();
-                })
-                .catch((e) => {
-                  message.error(e);
-                  this.query();
-                });
+                  .then((res) => {
+                    if (res.msg === '') {
+                      message.success(`'${record.name}'删除成功`);
+                    } else {
+                      message.error(res.msg)
+                    }
+                    this.query();
+                  })
+                  .catch((e) => {
+                    message.error(e);
+                    this.query();
+                  });
               }}
             >
               <span className='spanToa'>删除</span>

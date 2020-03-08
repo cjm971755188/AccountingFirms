@@ -4,11 +4,11 @@ import { connect } from 'dva';
 
 const { TextArea } = Input;
 
-@connect(({ customerType, loading }) => ({
-  customerType,
-  loading: loading.effects['customerType/createCustomerType'] || loading.effects['customerType/editCustomerType'],
+@connect(({ businessType, loading }) => ({
+  businessType,
+  loading: loading.effects['businessType/createBusinessType'] || loading.effects['businessType/editBusinessType'],
 }))
-class CustomerTypeCreateEdit extends Component {
+class BusinessTypeCreate extends Component {
   constructor(props) {
     super(props);
     this.state = {}
@@ -21,16 +21,16 @@ class CustomerTypeCreateEdit extends Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         dispatch({
-          type: flag === 'create' ? 'customerType/createCustomerType': 'customerType/editCustomerType',
+          type: flag === 'create' ? 'businessType/createBusinessType': 'businessType/editBusinessType',
           payload: {
-            ctid: flag === 'create' ? null : record.ctid,
+            btid: flag === 'create' ? null : record.btid,
             ...values
           }
         })
           .then((res) => {
             if (res.msg === '') {
-              message.success(flag === 'create' ? '添加结算类型成功！': '修改结算类型成功！')
-              this.props.history.replace('/home/customerType/list');
+              message.success(flag === 'create' ? '添加业务类型成功！': '修改业务类型成功！')
+              this.props.history.replace('/home/businessType/list');
               this.props.form.resetFields();
             } else {
               message.error(res.msg)
@@ -48,32 +48,33 @@ class CustomerTypeCreateEdit extends Component {
     const { flag, record } = this.props.history.location.state
     const formItemLayout = {
       labelCol: { span: 2 },
-      wrapperCol: { span: 6 },
+      wrapperCol: { span: 16 },
     }
     return (
-      <Card title={flag === 'create' ? '添加结算类型' : '修改结算类型信息'}>
+      <Card title='添加业务类型'>
         <Form onSubmit={this.handleSubmit} layout='horizontal' labelAlign='left'>
-          <Form.Item label='结算类型名称' {...formItemLayout}>
+          <Form.Item label='业务类型' {...formItemLayout}>
             {getFieldDecorator('name', {
               initialValue: flag === 'create' ? '' : record.name,
               rules: [
-                { required: true, message: '结算类型名称不能为空!' },
+                { required: true, message: '业务类型不能为空!' },
               ],
             })(
-              <Input placeholder="请输入结算类型名称" />,
+              <Input placeholder="请输入业务类型" style={{ width: '50%' }} />,
             )}
           </Form.Item>
-          <Form.Item label='描述' {...formItemLayout}>
+          <Form.Item label='类型描述' {...formItemLayout}>
             {getFieldDecorator('description', {
               initialValue: flag === 'create' ? '' : record.description,
               rules: [
-                { required: true, message: '结算类型名称不能为空!' },
+                { required: true, message: '类型描述不能为空!' },
               ],
             })(
               <TextArea
                 allowClear 
-                placeholder="请输入结算类型的描述（不得超过100个字符）"
-                maxLength={100}
+                style={{ width: '50%' }}
+                placeholder="请输入业务类型的描述（不得超过255个字符）"
+                maxLength={255}
                 autoSize={{ minRows: 4, maxRows: 10 }}
               />
             )}
@@ -88,7 +89,7 @@ class CustomerTypeCreateEdit extends Component {
             >
               取消
             </Button>
-            <Button type="primary" htmlType="submit" >{flag === 'create' ? '确认添加' : '确认修改'}</Button>
+            <Button  type="primary" htmlType="submit">{flag === 'create' ? '确认添加' : '确认修改'}</Button>
           </Form.Item>
         </Form>
       </Card>
@@ -97,6 +98,6 @@ class CustomerTypeCreateEdit extends Component {
   }
 }
 
-const CustomerTypeForm  = Form.create({ name: 'customerType' })(CustomerTypeCreateEdit);
+const BusinessTypeCreateForm  = Form.create({ name: 'businessTypeCreate' })(BusinessTypeCreate);
 
-export default CustomerTypeForm ;
+export default BusinessTypeCreateForm ;

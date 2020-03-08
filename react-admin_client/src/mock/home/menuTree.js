@@ -69,17 +69,17 @@ const menus = {
       path: "/home/others",
       children: [
         {
-          title: "部门配置",
+          title: "部门管理",
           icon: "branches",
           path: "/home/position/list"
         },
         {
-          title: "客户类型配置",
+          title: "结算类型与酬金管理",
           icon: "dollar",
-          path: "/home/settlementType/list"
+          path: "/home/customerType/list"
         },
         {
-          title: "业务类型配置",
+          title: "业务类型与指南管理",
           icon: "tags",
           path: "/home/businessType/list"
         },

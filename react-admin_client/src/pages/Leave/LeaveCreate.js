@@ -31,7 +31,6 @@ class LeaveCreate extends Component {
     const { flag } = this.props.history.location.state
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log('create-values: ', values)
       if (!err) {
         dispatch({
           type: 'leave/create',

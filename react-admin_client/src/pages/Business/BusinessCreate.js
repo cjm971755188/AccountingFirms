@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
-import { Card, Form, Input, Button, message, Select } from 'antd';
+import { Card, Form, Button, message, Select, InputNumber, Row, Col } from 'antd';
 import { connect } from 'dva';
+
+import SearchPerson from '../../components/searchPerson'
+import SearchCustomer from '../../components/searchCustomer'
 
 const { Option } = Select;
 
@@ -12,19 +15,37 @@ class BusinessCreate extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      type: 'new'
+      cid: '',
+      uid: '',
     }
+  }
+
+  UNSAFE_componentWillMount () {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'business/getBusinessTypes',
+      payload: {}
+    })
+    dispatch({
+      type: 'business/getUsers',
+      payload: {}
+    })
   }
 
   handleSubmit = e => {
     const { dispatch } = this.props
+    const { cid, uid } = this.state
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       console.log('edit-values: ', values)
       if (!err) {
         dispatch({
           type: 'business/create',
-          payload: values
+          payload: {
+            cid,
+            uid,
+            ...values
+          }
         })
           .then(() => {
             message.success('添加业务成功！')
@@ -35,10 +56,24 @@ class BusinessCreate extends Component {
     });
   };
 
+  getPersonValues = (values) => {
+    this.setState({
+      uid: values.uid
+    })
+  }
+
+  getCustomerValues = (values) => {
+    this.setState({
+      cid: values.cid
+    })
+  }
+
   render () {
     const { getFieldDecorator, resetFields } = this.props.form;
-    const { business: { businessTypes: { types } } } = this.props
-    const { type } = this.state
+    const { flag, record } = this.props.history.location.state
+    const { business: { businessTypes: { businessTypes }, users: { users = [] } } } = this.props
+    const { dispatch } = this.props
+    const { cid, uid } = this.state
     const formItemLayout = {
       labelCol: { span: 2 },
       wrapperCol: { span: 6 },
@@ -47,76 +82,57 @@ class BusinessCreate extends Component {
       <Card title='添加业务'>
         <Form onSubmit={this.handleSubmit} layout='horizontal' labelAlign='left'>
           <Form.Item label='业务类型' {...formItemLayout}>
-            {getFieldDecorator('type', {
-              initialValue: '',
+            {getFieldDecorator('btid', {
+              initialValue: flag === 'create' ? '' : record.btid,
               rules: [
                 { required: true, message: '业务类型不能为空!' },
               ],
             })(
               <Select 
                 placeholder="请选择新建的业务类型" 
-                onChange={value => { 
-                  if (value === '公司注册') {
-                    this.setState({ type: 'new'})
-                  } else {
-                    this.setState({ type: '' })
-                  }
+                onFocus={() => {
+                  dispatch({
+                    type: 'business/getBusinessTypes',
+                    payload: {}
+                  })
                 }}
               >
-                {types && types.map((value, key) => {
-                  return <Option value={value.name} key={value.btid}>{value.name}</Option>
+                {businessTypes && businessTypes.map((value, key) => {
+                  return <Option value={value.btid} key={value.btid}>{value.name}</Option>
                 })}
               </Select>,
             )}
           </Form.Item>
-          {type === 'new' ? null : <><Form.Item label='税号' {...formItemLayout}>
-            {getFieldDecorator('cID', {
-              initialValue: '',
-              rules: [
-                { required: true, message: '姓名不能为空!' },
-              ],
-            })(
-              <Input placeholder="请输入公司税号" />,
-            )}
+          <Form.Item>
+            <Row>
+              <Col span={2}>
+                <span style={{ color: 'red', fontWeight: 600 }}>* </span>
+                <span style={{ color: 'rgba(0, 0, 0, 0.85)', fontWeight: 500 }}>客户公司:</span>
+              </Col>
+              <Col span={6}>
+                <SearchCustomer sendValues={this.getCustomerValues} cid={cid} width='100%' />
+              </Col>
+            </Row>
           </Form.Item>
-          <Form.Item label='公司名称' {...formItemLayout}>
-            {getFieldDecorator('name', {
-              initialValue: '',
-              rules: [
-                { required: true, message: '姓名不能为空!' },
-              ],
-            })(
-              <Input placeholder="请输入公司名称" />,
-            )}
-          </Form.Item></>}
-          <Form.Item label='联系人' {...formItemLayout}>
-            {getFieldDecorator('linkName', {
-              initialValue: '',
-              rules: [
-                { required: true, message: '联系人不能为空!' },
-              ],
-            })(
-              <Input placeholder="请输入联系人姓名" />,
-            )}
+          <Form.Item>
+            <Row>
+              <Col span={2}>
+                <span style={{ color: 'red', fontWeight: 600 }}>* </span>
+                <span style={{ color: 'rgba(0, 0, 0, 0.85)', fontWeight: 500 }}>负责会计:</span>
+              </Col>
+              <Col span={6}>
+                <SearchPerson sendValues={this.getPersonValues} width='100%' uid={uid} users={users} did='2' />
+              </Col>
+            </Row>
           </Form.Item>
-          <Form.Item label='联系电话' {...formItemLayout}>
-            {getFieldDecorator('linkPhone', {
-              initialValue: '',
+          <Form.Item label='酬金' {...formItemLayout}>
+            {getFieldDecorator('salary', {
+              initialValue: flag === 'create' ? '' : record.salary,
               rules: [
-                { required: true, message: '联系电话不能为空!' },
+                { required: true, message: '酬金不能为空!' },
               ],
             })(
-              <Input placeholder="请输入联系电话" />,
-            )}
-          </Form.Item>
-          <Form.Item label='联系人身份证号' {...formItemLayout}>
-            {getFieldDecorator('linkID', {
-              initialValue: '',
-              rules: [
-                { required: true, message: '联系人身份证号不能为空!' },
-              ],
-            })(
-              <Input placeholder="请输入联系人身份证号" />,
+              <InputNumber min={1} />
             )}
           </Form.Item>
           <Form.Item>

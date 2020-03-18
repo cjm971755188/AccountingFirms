@@ -16,17 +16,15 @@ const app = dva({
 app.use(createLoading());
 
 // 3. Model
-app.model(require('./pages/Z_Home/model').default);
-app.model(require('./pages/Z_User/model').default);
+app.model(require('./pages/User_Home/model').default);
 app.model(require('./pages/Person/model').default);
 app.model(require('./pages/Customer/model').default);
 app.model(require('./pages/Business/model').default);
-app.model(require('./pages/Leave/model').default);
-app.model(require('./pages/Position/model').default);
+app.model(require('./pages/Absent/model').default);
+app.model(require('./pages/Department/model').default);
 app.model(require('./pages/CustomerType/model').default);
 app.model(require('./pages/BusinessType/model').default);
 app.model(require('./pages/Account/model').default);
-app.model(require('./pages/Permissions/model').default);
 
 // 4. Router
 app.router(() =>

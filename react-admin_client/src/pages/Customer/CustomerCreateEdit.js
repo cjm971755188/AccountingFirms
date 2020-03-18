@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Form, Input, Button, message, Radio, Select } from 'antd';
+import { Card, Form, Input, Button, message, Radio, Select, Row, Col } from 'antd';
 import { connect } from 'dva';
 
 import SearchPerson from '../../components/searchPerson'
@@ -15,29 +15,31 @@ class CustomerCreateEdit extends Component {
     super(props);
     const { flag, record } = this.props.history.location.state
     this.state = {
-      visible: false,
-      uid: flag === 'create' ? null : record.uid,
-      username: flag === 'create' ? null : record.username,
-      uname: flag === 'create' ? null : record.uname,
-      ctid: flag === 'create' ? null : record.ctid,
+      visible: record && record.isAccount === '是' ? true : false,
+      uid: flag === 'create' ? null : (record.uid === 0 ? '' : record.uid),
       ctName: flag === 'create' ? null : record.ctName,
-      sid: flag === 'create' ? null : record.sid,
-      salary: flag === 'create' ? null : record.salary,
     }
   }
 
   UNSAFE_componentWillMount () {
-    const { record } = this.props.history.location.state
-    if (record && record.isAccount === '是') {
-      this.setState({
-        visible: true,
-      })
-    }
+    const { dispatch } = this.props
+    dispatch({
+      type: 'customer/getCustomerTypes',
+      payload: {}
+    })
+    dispatch({
+      type: 'customer/getSalarys',
+      payload: {}
+    })
+    dispatch({
+      type: 'customer/getUsers',
+      payload: {}
+    })
   }
 
   handleSubmit = e => {
     const { dispatch } = this.props
-    const { uid, username, uname, ctid, sid } = this.state
+    const { uid } = this.state
     const { flag, record } = this.props.history.location.state
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -47,10 +49,6 @@ class CustomerCreateEdit extends Component {
           payload: {
             cid: flag === 'create' ? null : record.cid,
             uid,
-            username,
-            uname,
-            ctid,
-            sid,
             ...values
           }
         })
@@ -71,11 +69,8 @@ class CustomerCreateEdit extends Component {
   };
 
   getPersonValues = (values) => {
-    console.log('values: ', values)
     this.setState({
-      uid: values.uid,
-      username: values.username,
-      uname: values.name
+      uid: values.uid
     })
   }
 
@@ -85,11 +80,12 @@ class CustomerCreateEdit extends Component {
     const {
       customer: { 
         customerTypes: { customerTypes = [] },
-        salarys: { salarys = [] }
+        salarys: { salarys = [] },
+        users: { users = [] }
       },
       dispatch
     } = this.props
-    const { visible, ctid, salary, ctName } = this.state
+    const { visible, ctid, uid } = this.state
     const formItemLayout = {
       labelCol: { span: 2 },
       wrapperCol: { span: 6 },
@@ -118,8 +114,8 @@ class CustomerCreateEdit extends Component {
             )}
           </Form.Item>
           <Form.Item label='结算类型' {...formItemLayout}>
-            {getFieldDecorator('ctName', {
-              initialValue: flag === 'create' ? '' : ctName,
+            {getFieldDecorator('ctid', {
+              initialValue: flag === 'create' ? '' : record.ctid,
               rules: [
                 { required: true, message: '结算类型不能为空!' },
               ],
@@ -138,14 +134,14 @@ class CustomerCreateEdit extends Component {
                 }}
               >
                 {customerTypes && customerTypes.map((value, key) => {
-                  return <Option value={value.name} key={value.ctid}>{value.name}</Option>
+                  return <Option value={value.ctid} key={value.ctid}>{value.name}</Option>
                 })}
               </Select>,
             )}
           </Form.Item>
-          {ctid === undefined ? null : <Form.Item label='结算酬金' {...formItemLayout}>
-            {getFieldDecorator('salary', {
-              initialValue: flag === 'create' ? '' : salary,
+          <Form.Item label='结算酬金' {...formItemLayout}>
+            {getFieldDecorator('sid', {
+              initialValue: flag === 'create' ? '' : record.sid,
               rules: [
                 { required: true, message: '结算酬金不能为空!' },
               ],
@@ -158,16 +154,33 @@ class CustomerCreateEdit extends Component {
                     payload: { ctid }
                   })
                 }}
-                onChange={(value, key) => {
-                  this.setState({ sid: key.key })
-                }}
               >
                 {salarys && salarys.map((value, key) => {
-                  return <Option value={value.salary} key={value.sid}>{value.salary}</Option>
+                  return <Option value={value.sid} key={value.sid}>{value.salary}</Option>
                 })}
               </Select>,
             )}
-          </Form.Item>}
+          </Form.Item>
+          <Form.Item label='联系人' {...formItemLayout}>
+            {getFieldDecorator('linkName', {
+              initialValue: flag === 'create' ? '' : record.linkName,
+              rules: [
+                { required: true, message: '联系人名不能为空!' },
+              ],
+            })(
+              <Input placeholder="请输入联系人名" />,
+            )}
+          </Form.Item>
+          <Form.Item label='联系电话' {...formItemLayout}>
+            {getFieldDecorator('linkPhone', {
+              initialValue: flag === 'create' ? '' : record.linkPhone,
+              rules: [
+                { required: true, message: '联系电话不能为空!' },
+              ],
+            })(
+              <Input placeholder="请输入客户联系电话" />,
+            )}
+          </Form.Item>
           <Form.Item label='是否做账' {...formItemLayout}>
             {getFieldDecorator('isAccount', {
               initialValue: flag === 'create' ? '' : record.isAccount,
@@ -181,8 +194,17 @@ class CustomerCreateEdit extends Component {
               </Radio.Group>,
             )}
           </Form.Item>
-          {visible ? <Form.Item label='负责会计' {...formItemLayout}>
-            <SearchPerson sendValues={this.getPersonValues} width='100%' username={record ? record.username : null} name={record ? record.uname : null} pid='2' />
+          {visible ? 
+          <Form.Item>
+            <Row>
+              <Col span={2}>
+                <span style={{ color: 'red', fontWeight: 600 }}>* </span>
+                <span style={{ color: 'rgba(0, 0, 0, 0.85)', fontWeight: 500 }}>负责会计:</span>
+              </Col>
+              <Col span={6}>
+                <SearchPerson sendValues={this.getPersonValues} width='100%' uid={uid} users={users} did='2' />
+              </Col>
+            </Row>
           </Form.Item> : null}
           <Form.Item>
             <Button 

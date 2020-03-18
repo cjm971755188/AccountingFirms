@@ -4,9 +4,9 @@ const db = require('../config/db')
 
 router.post('/getPersonList', (req, res) => {
   let params = req.body
-  let sql = `SELECT * FROM user where state = 'unlock' and pid != '1' and username LIKE '%${params.username}%' and name LIKE '%${params.name}%'`
-  if (params.pid !== 'all') {
-    sql = sql + ` and pid = '${params.pid}'`
+  let sql = `SELECT * FROM user where state = 'unlock' and did != '0' and did != '1' and username LIKE '%${params.username}%' and name LIKE '%${params.name}%'`
+  if (params.did !== 'all') {
+    sql = sql + ` and did = '${params.did}'`
   }
   if (params.absent !== 'all') {
     sql = sql + ` and absent = '${params.absent}'`
@@ -14,40 +14,53 @@ router.post('/getPersonList', (req, res) => {
   sql = sql + ` ORDER BY uid`
   db.query(sql, (err, results) => {
     if (err) throw err;
-    let _results = []
+    let Results = results, _results = []
     if (results.length > params.pageSize) {
       for (let i = 0; i < params.pageNum; i++) {
-        let temp = results
-        _results = temp.slice(i*params.pageSize, (i+1)*params.pageSize)
+        _results = Results.slice(i*params.pageSize, (i+1)*params.pageSize)
       }
     } else {
       _results = results
     }
-    res.send({
-      code: 200,
-      data: { data: _results, pageNum: params.pageNum, pageSize: params.pageSize, total: results.length },
-      msg: ''
+    let sql = `SELECT * FROM department`
+    db.query(sql, (err, results) => {
+      if (err) throw err;
+      for (let i = 0; i < _results.length; i++) {
+        for (let j = 0; j < results.length; j++) {
+          if (_results[i].did === results[j].did) {
+            _results[i]['dName'] = results[j].name
+          }
+        }
+      }
+      res.send({
+        code: 200,
+        data: { data: _results, pageNum: params.pageNum, pageSize: params.pageSize, total: Results.length },
+        msg: ''
+      })
     })
   })
 })
 
 router.post('/createPerson', (req, res) => {
   let params = req.body
-  let s = `SELECT * FROM user WHERE phone = '${params.phone}'`
-  db.query(s, (err, r) => {
+  let sql = `SELECT * FROM user WHERE phone = '${params.phone}'`
+  db.query(sql, (err, results) => {
     if (err) throw err;
-    if (r.length !== 0) res.send({ code: 200, data: {}, msg: '该员工账号（手机号）已存在，不可重复添加！' })
+    if (results.length !== 0) res.send({ code: 200, data: {}, msg: '该员工账号（手机号）已存在，不可重复添加！' })
     else {
-      let q = `SELECT username FROM user ORDER BY uid DESC limit 1`
-      db.query(q, (err, result) => {
+      let sql = `SELECT username FROM user ORDER BY uid DESC limit 1`
+      db.query(sql, (err, results) => {
         if (err) throw err;
-        const id = Number(result[0].username.slice(3,8)) + 1
-        const username = 'JMG' + (id/Math.pow(10,5)).toFixed(5).substr(2)
-        const startTime = (new Date()).valueOf();
-        let sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.pid}', '${params.mid}', '在班', 'unlock');`
+        let id = Number(results[0].username.slice(3,8)) + 1
+        let sql = `SELECT * FROM department where did = '${params.did}'`
         db.query(sql, (err, results) => {
-          if (err) throw err;
-          res.send({ code: 200, data: { username }, msg: '' })
+          const username = 'JMG' + (id/Math.pow(10,5)).toFixed(5).substr(2)
+          const startTime = (new Date()).valueOf();
+          let sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.did}', '默认', '${results[0].permission}', '在班', 'unlock');`
+          db.query(sql, (err, results) => {
+            if (err) throw err;
+            res.send({ code: 200, data: { username }, msg: '' })
+          })
         })
       })
     }
@@ -56,12 +69,12 @@ router.post('/createPerson', (req, res) => {
 
 router.post('/editPerson', (req, res) => {
   let params = req.body
-  let s = `SELECT * FROM user WHERE uid = '${params.uid}'`
-  db.query(s, (err, r) => {
+  let sql = `SELECT * FROM user WHERE uid = '${params.uid}'`
+  db.query(sql, (err, results) => {
     if (err) throw err;
-    if (r.length === 0) res.send({ code: 200, data: {}, msg: '该员工账号不存在，不可修改信息！' })
+    if (results.length === 0) res.send({ code: 200, data: {}, msg: '该员工账号不存在，不可修改信息！' })
     else {
-      let sql = `UPDATE user SET name = '${params.name}', sex = '${params.sex}', phone = '${params.phone}', pid = '${params.pid}', mid = '${params.mid}' WHERE uid = ${params.uid};`
+      let sql = `UPDATE user SET name = '${params.name}', sex = '${params.sex}', phone = '${params.phone}', did = '${params.did}', permission = '${params.permission}' WHERE uid = ${params.uid};`
       db.query(sql, (err, results) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })
@@ -72,10 +85,10 @@ router.post('/editPerson', (req, res) => {
 
 router.post('/deletePerson', (req, res) => {
   let params = req.body
-  let s = `SELECT * FROM user WHERE uid = '${params.uid}'`
-  db.query(s, (err, r) => {
+  let sql = `SELECT * FROM user WHERE uid = '${params.uid}'`
+  db.query(sql, (err, results) => {
     if (err) throw err;
-    if (r.length === 0) res.send({ code: 200, data: {}, msg: '该员工账号不存在，不可删除！' })
+    if (results.length === 0) res.send({ code: 200, data: {}, msg: '该员工账号不存在，不可删除！' })
     else {
       let sql = `UPDATE user SET state = 'lock' WHERE uid = '${params.uid}';`
       db.query(sql, (err, results) => {
@@ -86,19 +99,11 @@ router.post('/deletePerson', (req, res) => {
   })
 })
 
-router.post('/getPositions', (req, res) => {
-  let sql = `SELECT * FROM position where pid != '1'`
+router.post('/getDepartments', (req, res) => {
+  let sql = `SELECT * FROM department where did != '0' and did != '1'`
   db.query(sql, (err, results) => {
     if (err) throw err;
-    res.send({ code: 200, data: { positions: results }, msg: '' })
-  })
-})
-
-router.post('/getPermissions', (req, res) => {
-  let sql = `SELECT * FROM permission`
-  db.query(sql, (err, results) => {
-    if (err) throw err;
-    res.send({ code: 200, data: { permissions: results }, msg: '' })
+    res.send({ code: 200, data: { departments: results }, msg: '' })
   })
 })
 

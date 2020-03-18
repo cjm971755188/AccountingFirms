@@ -2,21 +2,19 @@ import React, { Component } from 'react';
 import { Card, Table, Button, Row, Col, Input, Popconfirm, message, Divider, Tooltip } from 'antd';
 import { connect } from 'dva';
 
-@connect(({ customerType, loading }) => ({
-  customerType,
-  loading: loading.effects['customerType/fetchList'],
+@connect(({ department, loading }) => ({
+  department,
+  loading: loading.effects['department/fetchList'],
 }))
-class CustomerType extends Component {
+class Department extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      subList: {}
-    }
+    this.state = {}
   }
 
   UNSAFE_componentWillMount () {
     const {
-      customerType: {
+      department: {
         list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
           name = '',
@@ -27,10 +25,10 @@ class CustomerType extends Component {
     } = this.props;
     if (action !== 'POP') {
       dispatch({
-        type: 'customerType/reset',
+        type: 'department/reset',
       });
       dispatch({
-        type: 'customerType/fetchList',
+        type: 'department/fetchList',
         payload: {
           name: '',
           pageNum: 1,
@@ -38,7 +36,7 @@ class CustomerType extends Component {
         },
       });
       dispatch({
-        type: 'customerType/save',
+        type: 'department/save',
         payload: {
           choosedName: '',
         },
@@ -46,7 +44,7 @@ class CustomerType extends Component {
       });
     } else {
       dispatch({
-        type: 'customerType/fetchList',
+        type: 'department/fetchList',
         payload: {
           name,
           pageNum,
@@ -54,7 +52,7 @@ class CustomerType extends Component {
         },
       });
       dispatch({
-        type: 'customerType/save',
+        type: 'department/save',
         payload: {
           choosedName: name,
         },
@@ -65,7 +63,7 @@ class CustomerType extends Component {
 
   query = () => {
     const {
-      customerType: {
+      department: {
         list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
           name = '',
@@ -74,7 +72,7 @@ class CustomerType extends Component {
       dispatch,
     } = this.props;
     dispatch({
-      type: 'customerType/fetchList',
+      type: 'department/fetchList',
       payload: {
         name,
         pageNum,
@@ -82,7 +80,7 @@ class CustomerType extends Component {
       },
     });
     dispatch({
-      type: 'customerType/save',
+      type: 'department/save',
       payload: {
         choosedName: name,
       },
@@ -93,7 +91,7 @@ class CustomerType extends Component {
   reset = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'customerType/fetchList',
+      type: 'department/fetchList',
       payload: {
         name: '',
         pageNum: 1,
@@ -101,7 +99,7 @@ class CustomerType extends Component {
       },
     });
     dispatch({
-      type: 'customerType/reset',
+      type: 'department/reset',
       payload: {},
     });
   };
@@ -109,13 +107,13 @@ class CustomerType extends Component {
   getColumns = () => {
     const { dispatch } = this.props
     const columns = [
-      { title: '编号', dataIndex: 'ctid', key: 'ctid' },
-      { title: '结算类型', dataIndex: 'name', key: 'name' },
+      { title: '编号', dataIndex: 'did', key: 'did' },
+      { title: '职位名称', dataIndex: 'name', key: 'name' },
       { 
         title: '描述',
         dataIndex: 'description', 
         key: 'description', 
-        width: '30%', 
+        width: '40%', 
         onCell: () => {
           return {
             style: {
@@ -138,38 +136,26 @@ class CustomerType extends Component {
               className='spanToa' 
               onClick={() => { 
                 this.props.history.push({
-                  pathname: '/home/customerType/editCustomerType',
+                  pathname: '/home/department/editDepartment',
                   state: { flag: 'edit', record: record }
                 })
               }}
             >
-              修改信息
-            </span>
-            <Divider type="vertical" />
-            <span 
-              className='spanToa' 
-              onClick={() => { 
-                this.props.history.push({
-                  pathname: '/home/customerType/createSalary',
-                  state: { flag: 'create', record: record }
-                })
-              }}
-            >
-              添加酬金类型
+              修改信息与默认权限
             </span>
             <Divider type="vertical" />
             <Popconfirm
-              title="确认将该类型删除么？"
+              title="确认将该部门职位删除么？"
               cancelText="取消"
               okText="确认"
               onConfirm={() => {
                 dispatch({
-                  type: 'customerType/deleteCustomerType',
-                  payload: { ctid: record.ctid },
+                  type: 'department/deleteDepartment',
+                  payload: { did: record.did },
                 })
                   .then((res) => {
                     if (res.msg === '') {
-                      message.success(`结算类型'${record.name}'删除成功`);
+                      message.success(`'${record.name}'删除成功`);
                     } else {
                       message.error(res.msg)
                     }
@@ -192,7 +178,7 @@ class CustomerType extends Component {
 
   handleTableChange = (pagination, filters, sorter) => {
     const {
-      customerType: {
+      department: {
         choosedName = '',
       },
       dispatch,
@@ -203,93 +189,23 @@ class CustomerType extends Component {
       pageSize: pagination.pageSize,
     };
     dispatch({
-      type: 'customerType/fetchList',
+      type: 'department/fetchList',
       payload,
     });
   };
 
-  expandedRowRender = (record) => {
-    const { dispatch } = this.props;
-    const { subList } = this.state
-    const columns = [
-      { title: '酬金', dataIndex: 'salary', key: 'salary' },
-      {
-        title: '操作',
-        width: '30%',
-        render: (text, record) => (
-          <>
-            <span 
-              className='spanToa' 
-              onClick={() => { 
-                this.props.history.push({
-                  pathname: '/home/customerType/editSalary',
-                  state: { flag: 'edit', record: record }
-                })
-              }}
-            >
-              修改金额
-            </span>
-            <Divider type="vertical" />
-            <Popconfirm
-              title="确认将该类型删除么？"
-              cancelText="取消"
-              okText="确认"
-              onConfirm={() => {
-                dispatch({
-                  type: 'customerType/deleteSalary',
-                  payload: { sid: record.sid },
-                })
-                  .then((res) => {
-                    if (res.msg === '') {
-                      message.success(`酬金金额'${record.name}'删除成功`);
-                    } else {
-                      message.error(res.msg)
-                    }
-                    this.onExpand(record);
-                  })
-                  .catch((e) => {
-                    message.error(e);
-                    this.onExpand(record);
-                  });
-              }}
-            >
-              <span className='spanToa'>删除</span>
-            </Popconfirm>
-          </>
-        )
-      }
-    ];
-    return <Table columns={columns} dataSource={subList[record.ctid]} pagination={false} rowKey={row => row.sid} style={{ margin: 2 }} />
-  };
-
-  onExpand = (record) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'customerType/getSalaryList',
-      payload: { ctid: record.ctid },
-    })
-      .then((res) => {
-        if (res.msg === '') {
-          let temp = this.state.subList
-          let list = res.data.data
-          temp[record.ctid] = list
-          this.setState({
-            subList: temp
-          })
-        }
-      })
-  }
-
   render () {
     const { 
-      customerType: { 
+      department: { 
         list: { 
           data = [], 
           pageSize, 
           pageNum, 
           total 
         },
-        currentParameter: { name },
+        currentParameter: {
+          name
+        },
       }, 
       loading,
       dispatch
@@ -299,13 +215,13 @@ class CustomerType extends Component {
       <Card>
         <Row gutter={[48, 16]} className='searchBox'>
           <Col span={8}>
-            <span>结算类型</span>
+            <span>职位名称</span>
             <Input
               style={{ width: '100%' }}
-              placeholder="请输入结算类型名称"
+              placeholder="请输入部门职位名称"
               onChange={value => {
                 dispatch({
-                  type: 'customerType/save',
+                  type: 'department/save',
                   payload: { name: value.target.value },
                   index: 'currentParameter',
                 });
@@ -324,32 +240,30 @@ class CustomerType extends Component {
       </Card>
       <br/>
       <Card 
-        title='结算类型列表'
+        title='部门职位列表'
         extra={
           <Button
             icon="plus"
             type="primary"
             onClick={() => { 
               this.props.history.push({
-                pathname: '/home/customerType/createCustomerType',
+                pathname: '/home/department/createDepartment',
                 state: { flag: 'create', record: null }
               })
             }}
           >
-            添加结算类型
+            添加职位
           </Button>
         }
       >
         <Table
           bordered
           loading={loading}
-          rowKey={row => row.ctid}
+          rowKey={row => row.did}
           dataSource={data}
           columns={this.getColumns()}
           pagination={{ total, pageSize, current: pageNum }}
           onChange={this.handleTableChange}
-          expandedRowRender={this.expandedRowRender}
-          onExpand={(expanded, record) => { this.onExpand(record) }}
         />
       </Card>
       </>
@@ -357,4 +271,4 @@ class CustomerType extends Component {
   }
 }
 
-export default CustomerType;
+export default Department;

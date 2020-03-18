@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Card, Popconfirm, Table, Divider, Button, Row, Col, Input, Icon, message, Select } from 'antd';
+import { Card, Table, Divider, Button, Row, Col, Input, Icon, message, Select, Modal } from 'antd';
 import { connect } from 'dva';
 
 const { Option } = Select;
+const { confirm } = Modal;
 
 @connect(({ person, loading }) => ({
   person,
@@ -11,7 +12,9 @@ const { Option } = Select;
 class Person extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.state = {
+      deleteVisible: false
+    }
   }
 
   UNSAFE_componentWillMount () {
@@ -21,7 +24,7 @@ class Person extends Component {
         currentParameter: {
           username = '',
           name = '',
-          pid = 'all',
+          did = 'all',
           absent = 'all'
         },
       },
@@ -37,7 +40,7 @@ class Person extends Component {
         payload: {
           username: '',
           name: '',
-          pid: 'all',
+          did: 'all',
           absent: 'all',
           pageNum: 1,
           pageSize,
@@ -59,7 +62,7 @@ class Person extends Component {
         payload: {
           username,
           name,
-          pid,
+          did,
           absent,
           pageNum,
           pageSize,
@@ -70,16 +73,12 @@ class Person extends Component {
         payload: {
           choosedUsername: username,
           choosedName: name,
-          choosedPid: pid,
+          choosedPid: did,
           choosedAbsent: absent
         },
         index: 'comfirmData',
       });
     }
-    dispatch({
-      type: 'person/getPositions',
-      payload: {}
-    })
   }
 
   query = () => {
@@ -89,7 +88,7 @@ class Person extends Component {
         currentParameter: {
           username = '',
           name = '',
-          pid = 'all',
+          did = 'all',
           absent = 'all'
         },
       },
@@ -97,14 +96,14 @@ class Person extends Component {
     } = this.props;
     dispatch({
       type: 'person/fetchList',
-      payload: { username, name, pid, absent, pageNum, pageSize },
+      payload: { username, name, did, absent, pageNum, pageSize },
     });
     dispatch({
       type: 'person/save',
       payload: {
         choosedUsername: username,
         choosedName: name,
-        choosedPid: pid,
+        choosedPid: did,
         choosedAbsent: absent
       },
       index: 'comfirmData',
@@ -118,7 +117,7 @@ class Person extends Component {
       payload: { 
         username: '',
         name: '',
-        pid: 'all',
+        did: 'all',
         absent: 'all',
         pageNum: 1,
         pageSize: 10
@@ -130,30 +129,13 @@ class Person extends Component {
   };
 
   getColumns = () => {
-    const { 
-      person: { 
-        positions: { positions }
-      }, 
-      dispatch 
-    } = this.props
-    
+    const { dispatch } = this.props
     const columns = [
       { title: '工号', dataIndex: 'username', key: 'username' },
       { title: '姓名', dataIndex: 'name', key: 'name' },
       { title: '性别', dataIndex: 'sex', key: 'sex' },
       { title: '联系方式', dataIndex: 'phone', key: 'phone' },
-      { 
-        title: '部门职位', 
-        render: record => {
-          if (positions) {
-            for (let i = 0; i < positions.length; i++) {
-              if (record.pid === positions[i].pid) {
-                return <span>{positions[i].name}</span>
-              }
-            }
-          }
-        }
-      },
+      { title: '部门职位', dataIndex: 'dName', key: 'dName' },
       { 
         title: '在班状态', 
         render: record => {
@@ -175,7 +157,7 @@ class Person extends Component {
       },
       {
         title: '操作',
-        width: '30%',
+        width: '20%',
         render: (text, record) => (
           <>
             <span 
@@ -206,32 +188,43 @@ class Person extends Component {
               修改信息
             </span>
             <Divider type="vertical" />
-            <Popconfirm
-              icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
-              title="确认辞退该员工么？"
-              cancelText="取消"
-              okText="确认"
-              onConfirm={() => {
-                dispatch({
-                  type: 'person/del',
-                  payload: { uid: record.uid },
-                })
-                  .then((res) => {
-                    if (res.msg === '') {
-                      message.success(`'${record.name}'辞退成功`);
-                    } else {
-                      message.error(res.msg)
-                    }
-                    this.query();
+            <span 
+              className='spanToa' 
+              onClick={() => { 
+                const that = this
+                return (
+                  confirm({
+                    title: '确认辞退该员工么？',
+                    icon: <Icon type="info-circle" />,
+                    content: '注：已辞退的员工账号将会被锁定并且无法解锁，请谨慎操作',
+                    okText: '确认辞退',
+                    okType: 'danger',
+                    cancelText: '取消',
+                    onOk() {
+                      dispatch({
+                        type: 'person/del',
+                        payload: { uid: record.uid },
+                      })
+                        .then((res) => {
+                          if (res.msg === '') {
+                            message.success(`员工'${record.name}'辞退成功`);
+                          } else {
+                            message.error(res.msg)
+                          }
+                          that.query();
+                        })
+                        .catch((e) => {
+                          message.error(e);
+                          that.query();
+                        });
+                    },
+                    onCancel() {},
                   })
-                  .catch((e) => {
-                    message.error(e);
-                    this.query();
-                  });
+                )
               }}
             >
-              <span className='spanToa'>辞退</span>
-            </Popconfirm>
+              辞退
+            </span>
           </>
         )
       }
@@ -252,7 +245,7 @@ class Person extends Component {
     const payload = {
       username: choosedUsername && (choosedUsername.trim() || null),
       name: choosedName && (choosedName.trim() || null),
-      pid: choosedPid,
+      did: choosedPid,
       absent: choosedAbsent,
       pageNum: pagination.current,
       pageSize: pagination.pageSize,
@@ -273,9 +266,9 @@ class Person extends Component {
           total 
         },
         currentParameter: {
-          username, name, pid, absent
+          username, name, did, absent
         },
-        positions: { positions }
+        departments: { departments }
       }, 
       loading,
       dispatch
@@ -324,21 +317,21 @@ class Person extends Component {
               onChange={value => {
                 dispatch({
                   type: 'person/save',
-                  payload: { pid: value },
+                  payload: { did: value },
                   index: 'currentParameter',
                 });
               }}
               onFocus={() => {
                 dispatch({
-                  type: 'person/getPositions',
+                  type: 'person/getDepartments',
                   payload: {}
                 })
               }}
-              value={pid}
+              value={did}
             >
               <Option value="all">全部</Option>
-              {positions && positions.map((value, key) => {
-                return <Option value={value.pid} key={value.pid}>{value.name}</Option>
+              {departments && departments.map((value, key) => {
+                return <Option value={value.did} key={value.did}>{value.name}</Option>
               })}
             </Select>
           </Col>

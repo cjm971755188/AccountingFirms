@@ -75,7 +75,7 @@ class GuideCreateEdit extends Component {
             {getFieldDecorator('step', {
               initialValue: flag === 'create' ? '' : record.step,
               rules: [
-                { required: true, message: '酬金金额不能为空!' },
+                { required: true, message: '步骤顺序不能为空!' },
               ],
             })(
               <InputNumber min={1} max={steps + 1} />
@@ -86,9 +86,10 @@ class GuideCreateEdit extends Component {
               value={flag === 'create' ? color : record.color}
               onChange={(e) => { this.setState({ color: e.target.value }) }} 
             >
+              <Radio value={'green'}>接收与完成</Radio>
               <Radio value={'red'}>重要</Radio>
               <Radio value={'#FF8C00'}>普通</Radio>
-              <Radio value={'grey'}>不重要</Radio>
+              <Radio value={'grey'}>等待</Radio>
             </Radio.Group>
           </Form.Item>
           <Form.Item label='步骤主题' {...formItemLayout}>
@@ -104,9 +105,7 @@ class GuideCreateEdit extends Component {
           <Form.Item label='具体描述' {...formItemLayout}>
             {getFieldDecorator('detail', {
               initialValue: flag === 'create' ? '' : record.detail,
-              rules: [
-                { required: true, message: '具体描述不能为空!' },
-              ],
+              rules: [],
             })(
               <TextArea
                 allowClear 

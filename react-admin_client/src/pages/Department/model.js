@@ -1,7 +1,7 @@
-import { getPersonList, createPerson, editPerson, deletePerson, getDepartments } from '../../services/person';
+import { getDepartmentList, createDepartment, editDepartment, deleteDepartment } from '../../services/department';
 
 export default {
-  namespace: 'person',
+  namespace: 'department',
   state: {
     list: {
       data: [],
@@ -10,26 +10,17 @@ export default {
       total: 0
     },
     currentParameter: {
-      username: '',
       name: '',
-      did: 'all',
-      absent: 'all'
     },
     comfirmData: {
-      choosedUsername: '',
       choosedName: '',
-      choosedPid: 'all',
-      choosedAbsent: 'all'
     },
-    detail: [],
-    departments: [],
-    permissions: []
   },
 
   effects: {
     *fetchList({ payload }, { call, put }) {
       try {
-        const res = yield call(getPersonList, payload);
+        const res = yield call(getDepartmentList, payload); 
         yield put({
           type: 'save',
           payload: res.data,
@@ -40,42 +31,26 @@ export default {
         return Promise.reject(e);
       }
     },
-    *create({ payload }, { call, put }) {
+    *createDepartment({ payload }, { call, put }) {
       try {
-        const res = yield call(createPerson, payload);
+        const res = yield call(createDepartment, payload);
         return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    *edit({ payload }, { call, put }) {
+    *editDepartment({ payload }, { call, put }) {
       try {
-        const res = yield call(editPerson, payload);
+        const res = yield call(editDepartment, payload);
         return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    *del({ payload }, { call, put }) {
+    *deleteDepartment({ payload }, { call, put }) {
       try {
-        const res = yield call(deletePerson, payload);
+        const res = yield call(deleteDepartment, payload); 
         return Promise.resolve(res);
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    },
-    *getDepartments({ payload }, { call, put }) {
-      try {
-        const res = yield call(getDepartments, payload);
-        if (res.code === 200) {
-          yield put({
-            type: 'save',
-            payload: res.data,
-            index: 'departments'
-          });
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
       } catch (e) {
         return Promise.reject(e);
       }
@@ -101,16 +76,10 @@ export default {
           total: 0
         },
         currentParameter: {
-          username: '',
           name: '',
-          did: 'all',
-          absent: 'all'
         },
         comfirmData: {
-          choosedUsername:'',
           choosedName: '',
-          choosedPid: 'all',
-          choosedAbsent: 'all'
         },
       };
     },

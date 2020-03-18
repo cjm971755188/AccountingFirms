@@ -8,6 +8,4 @@ export function editPerson(params) { return request('/person/editPerson', { meth
 
 export function deletePerson(params) { return request('/person/deletePerson', { method: 'POST', body: { ...params } }) }
 
-export function getPositions(params) { return request('/person/getPositions', { method: 'POST', body: { ...params } }) }
-
-export function getPermissions(params) { return request('/person/getPermissions', { method: 'POST', body: { ...params } }) }
+export function getDepartments(params) { return request('/person/getDepartments', { method: 'POST', body: { ...params } }) }

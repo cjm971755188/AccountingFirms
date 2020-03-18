@@ -12,4 +12,6 @@ export function didPay(params) { return request('/customer/didPay', { method: 'P
 
 export function getCustomerTypes(params) { return request('/customer/getCustomerTypes', { method: 'POST', body: { ...params } }) }
 
-export function getSalary(params) { return request('/customer/getSalary', { method: 'POST', body: { ...params } }) }
+export function getSalarys(params) { return request('/customer/getSalarys', { method: 'POST', body: { ...params } }) }
+
+export function getUsers(params) { return request('/customer/getUsers', { method: 'POST', body: { ...params } }) }

@@ -112,7 +112,7 @@ class BusinessType extends Component {
       { title: '编号', dataIndex: 'btid', key: 'btid' },
       { title: '类型名称', dataIndex: 'name', key: 'name' },
       { 
-        title: '类型描述',
+        title: '描述',
         dataIndex: 'description', 
         key: 'description', 
         width: '30%', 
@@ -223,7 +223,7 @@ class BusinessType extends Component {
       { title: '步骤', dataIndex: 'step', key: 'step' },
       { title: '主题', dataIndex: 'title', key: 'title' },
       { 
-        title: '具体描述',
+        title: '描述',
         dataIndex: 'detail', 
         key: 'detail', 
         width: '40%', 
@@ -264,7 +264,7 @@ class BusinessType extends Component {
               onConfirm={() => {
                 dispatch({
                   type: 'businessType/deleteGuide',
-                  payload: { gid: record.gid, step: record.step },
+                  payload: { gid: record.gid, step: record.step, btid: record.btid },
                 })
                   .then((res) => {
                     if (res.msg === '') {
@@ -372,7 +372,7 @@ class BusinessType extends Component {
         <Table
           bordered
           loading={loading}
-          rowKey={row => row.pid}
+          rowKey={row => row.did}
           dataSource={data}
           columns={this.getColumns()}
           pagination={{ total, pageSize, current: pageNum }}

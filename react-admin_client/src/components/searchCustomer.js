@@ -4,65 +4,63 @@ import { connect } from 'dva';
 
 const { Option } = Select
 
-@connect(({ loading }) => ({ loading: loading.effects['user/searchPerson'] }))
-class SearchPerson extends Component {
+@connect(({ loading }) => ({ loading: loading.effects['user/searchCustomer'] }))
+class SearchCustomer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      person: this.props.users || [],
+      customer: [],
       width: this.props.width || null,
-      uid: ''
+      cid: ''
     }
   }
 
   handleChange = (value, key) => {
-    this.setState({ uid: value })
-    this.props.sendValues({ uid: value })
+    this.setState({ cid: value })
+    this.props.sendValues({ cid: value })
   };
 
   handleFocus = (value) => {
-    const { dispatch, did } = this.props
+    const { dispatch } = this.props
     dispatch({
-      type: 'user/searchPerson',
+      type: 'user/searchCustomer',
       payload: {
-        username: '',
+        ID: '',
         name: '',
         pageNum: 1,
         pageSize: 10000,
-        did: did || null
       }
     })
       .then((res) => {
-        this.setState({ person: res.data.data })
+        this.setState({ customer: res.data.data })
       })
   };
   
   handleSearch = (value) => {
-    const { dispatch, did } = this.props
+    const { dispatch } = this.props
     dispatch({
-      type: 'user/searchPerson',
+      type: 'user/searchCustomer',
       payload: {
-        username: value,
+        ID: value,
         name: value,
         pageNum: 1,
         pageSize: 10000,
-        did: did || null
       }
     })
       .then((res) => {
-        this.setState({ person: res.data.data })
+        this.setState({ customer: res.data.data })
       })
   }
 
   render () {
-    const { uid } = this.props
-    const { person, width } = this.state
+    const { cid } = this.props
+    const { customer, width } = this.state
     return (
       <Select
         showSearch
-        value={uid}
+        value={cid}
         style={{ width }}
-        placeholder="请输入需要请假的员工工号或姓名"
+        placeholder="请输入客户公司税号或名称"
         filterOption={false}
         onFocus={this.handleFocus}
         onChange={this.handleChange}
@@ -70,12 +68,12 @@ class SearchPerson extends Component {
         notFoundContent={null}
         optionFilterProp="children"
       >
-        {person && person.map((value, key) => {
-          return <Option value={value.uid} key={value.uid}>{value.name}({value.username})</Option>
+        {customer && customer.map((value, key) => {
+          return <Option value={value.cid} key={value.cid}>{value.name}({value.ID})</Option>
         })}
       </Select>
     )
   }
 }
 
-export default SearchPerson ;
+export default SearchCustomer ;

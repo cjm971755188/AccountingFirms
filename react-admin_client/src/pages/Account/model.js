@@ -1,39 +1,41 @@
-/* import { getList, getDetail, getPosition, resetPassWord } from '../services/personnel'; */
+import { getAccountList, create, changePermissions, resetPassWord, lockOrUnlock, getDepartments } from '../../services/account';
 
 export default {
   namespace: 'account',
   state: {
     list: {
       data: [],
-      pageNum: 0,
+      pageNum: 1,
       pageSize: 10,
       total: 0
     },
     currentParameter: {
-      uid: '',
+      username: '',
       name: '',
+      did: 'all',
+      pType: 'all',
+      state: 'all',
     },
     comfirmData: {
-      choosedUid: '',
+      choosedUsername: '',
       choosedName: '',
+      choosedDid: 'all',
+      choosedPType: 'all',
+      choosedState: 'all',
     },
-    permissions: [],
+    departments: [],
   },
 
   effects: {
-    /* *fetchList({ payload }, { call, put }) {
+    *fetchList({ payload }, { call, put }) {
       try {
-        const res = yield call(getList, payload); 
-        const res = getList
-        if (res.code === 200) {
-          yield put({
-            type: 'save',
-            payload: res.data,
-            index: 'list'
-          });
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(getAccountList, payload); 
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'list'
+        });
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
@@ -41,36 +43,43 @@ export default {
     *create({ payload }, { call, put }) {
       try {
         const res = yield call(create, payload); 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    *edit({ payload }, { call, put }) {
+    *changePermissions({ payload }, { call, put }) {
       try {
-        const res = yield call(create, payload); 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        const res = yield call(changePermissions, payload); 
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    *getPermissions({ payload }, { call, put }) {
+    *resetPassWord({ payload }, { call, put }) {
       try {
-        const res = yield call(getPosition, payload); 
-        const res = getPermissions
+        const res = yield call(resetPassWord, payload); 
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *lockOrUnlock({ payload }, { call, put }) {
+      try {
+        const res = yield call(lockOrUnlock, payload); 
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *getDepartments({ payload }, { call, put }) {
+      try {
+        const res = yield call(getDepartments, payload);
         if (res.code === 200) {
           yield put({
             type: 'save',
             payload: res.data,
-            index: 'permissions'
+            index: 'departments'
           });
           return Promise.resolve(res);
         }
@@ -79,33 +88,9 @@ export default {
         return Promise.reject(e);
       }
     },
-    *changePermissions({ payload }, { call, put }) {
+    /* *create({ payload }, { call, put }) {
       try {
-        const res = yield call(adjust, payload); 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    },
-    *resetPassWord({ payload }, { call, put }) {
-      try {
-        const res = yield call(resetPassWord, payload); 
-        const res = yield def
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    },
-    *del({ payload }, { call, put }) {
-      try {
-        const res = yield call(del, payload); 
+        const res = yield call(create, payload); 
         const res = yield def
         if (res.code === 200) {
           return Promise.resolve(res);
@@ -131,18 +116,23 @@ export default {
       return {
         ...state,
         list: {
-          data: [],
-          pageNum: 0,
+          pageNum: 1,
           pageSize: 10,
           total: 0
         },
         currentParameter: {
-          uid: '',
+          username: '',
           name: '',
+          did: 'all',
+          pType: 'all',
+          state: 'all',
         },
         comfirmData: {
-          choosedUid:'',
+          choosedUsername: '',
           choosedName: '',
+          choosedDid: 'all',
+          choosedPType: 'all',
+          choosedState: 'all',
         },
       };
     },

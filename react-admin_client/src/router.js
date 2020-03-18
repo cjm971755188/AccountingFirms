@@ -1,9 +1,9 @@
-import User from './pages/Z_User/User';
-import Login from './pages/Z_User/Login';
-import Forget from './pages/Z_User/Forget';
-import Reset from './pages/Z_User/Reset';
+import User from './pages/User_Home/User';
+import UserLogin from './pages/User_Home/UserLogin';
+import UserForget from './pages/User_Home/UserForget';
+import UserReset from './pages/User_Home/UserReset';
 
-import Home from './pages/Z_Home/Home';
+import Home from './pages/User_Home/Home';
 import Main from './pages/Main/Main';
 
 import PersonList from './pages/Person/PersonList';
@@ -18,14 +18,14 @@ import CustomerEdit from './pages/Customer/CustomerCreateEdit';
 
 import BusinessList from './pages/Business/BusinessList';
 import BusinessCreate from './pages/Business/BusinessCreate';
-import BusinessHelp from './pages/Business/BusinessHelp';
+import BusinessGuide from './pages/Business/BusinessGuide';
 
-import LeaveList from './pages/Leave/LeaveList';
-import LeaveCreate from './pages/Leave/LeaveCreate';
+import AbsentList from './pages/Absent/AbsentList';
+import AbsentCreate from './pages/Absent/AbsentCreate';
 
-import PositionList from './pages/Position/PositionList';
-import PositionCreate from './pages/Position/PositionCreateEdit';
-import PositionEdit from './pages/Position/PositionCreateEdit';
+import DepartmentList from './pages/Department/DepartmentList';
+import DepartmentCreate from './pages/Department/DepartmentCreateEdit';
+import DepartmentEdit from './pages/Department/DepartmentCreateEdit';
 
 import CustomerTypeList from './pages/CustomerType/CustomerTypeList';
 import CustomerTypeCreate from './pages/CustomerType/CustomerTypeCreateEdit';
@@ -40,8 +40,8 @@ import GuideCreate from './pages/BusinessType/GuideCreateEdit';
 import GuideEdit from './pages/BusinessType/GuideCreateEdit';
 
 import AccountList from './pages/Account/AccountList';
-
-import PermissionsList from './pages/Permissions/PermissionsList';
+import AccountCreate from './pages/Account/AccountCreate';
+import ChangePermissions from './pages/Account/ChangePermissions';
 
 export default [
   {
@@ -51,17 +51,17 @@ export default [
     routes: [
       { 
         path: '/login', 
-        component: Login, 
+        component: UserLogin, 
         exact: true
       },
       { 
         path: '/forget', 
-        component: Forget, 
+        component: UserForget, 
         exact: true
       },
       { 
         path: '/reset', 
-        component: Reset, 
+        component: UserReset, 
         exact: true
       }
     ],
@@ -143,45 +143,45 @@ export default [
             exact: true,
           },
           { 
-            path: '/help', 
-            component: BusinessHelp, 
+            path: '/guide', 
+            component: BusinessGuide, 
             exact: true,
           },
         ]
       },
       { 
-        path: '/leave', 
+        path: '/absent', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: LeaveList, 
+            component: AbsentList, 
             exact: true,
           },
           { 
             path: '/create', 
-            component: LeaveCreate, 
+            component: AbsentCreate, 
             exact: true,
           },
         ]
       },
       { 
-        path: '/position', 
+        path: '/department', 
         exact: true,
         children: [
           { 
             path: '/list', 
-            component: PositionList, 
+            component: DepartmentList, 
             exact: true,
           },
           { 
-            path: '/create', 
-            component: PositionCreate, 
+            path: '/createDepartment', 
+            component: DepartmentCreate, 
             exact: true,
           },
           { 
-            path: '/edit',
-            component: PositionEdit, 
+            path: '/editDepartment',
+            component: DepartmentEdit, 
             exact: true,
           },
         ]
@@ -257,27 +257,16 @@ export default [
             component: AccountList, 
             exact: true,
           },
-          /* { 
-            path: '/create', 
-            component: BusinessTypeCreate, 
-            exact: true,
-          }, */
-        ]
-      },
-      { 
-        path: '/permissions', 
-        exact: true,
-        children: [
           { 
-            path: '/list', 
-            component: PermissionsList, 
+            path: '/create', 
+            component: AccountCreate, 
             exact: true,
           },
-          /* { 
-            path: '/create', 
-            component: BusinessTypeCreate, 
+          { 
+            path: '/changePermissions', 
+            component: ChangePermissions, 
             exact: true,
-          }, */
+          },
         ]
       },
     ],

@@ -80,6 +80,10 @@ class Customer extends Component {
         index: 'comfirmData',
       });
     }
+    dispatch({
+      type: 'customer/getUsers',
+      payload: {}
+    })
   }
 
   query = () => {
@@ -144,8 +148,10 @@ class Customer extends Component {
       { title: '客户公司名称', dataIndex: 'name', key: 'name' },
       { title: '结算类型', dataIndex: 'ctName', key: 'ctName' },
       { title: '结算酬金', dataIndex: 'salary', key: 'salary' },
+      { title: '联系人', dataIndex: 'linkName', key: 'linkName' },
+      { title: '联系电话', dataIndex: 'linkPhone', key: 'linkPhone' },
       { title: '是否做账', dataIndex: 'isAccount', key: 'isAccount' },
-      { title: '负责会计', dataIndex: 'uname', key: 'uname' },
+      { title: '负责会计', dataIndex: 'uName', key: 'uName' },
       { 
         title: '信用状态', 
         render: record => {
@@ -167,7 +173,7 @@ class Customer extends Component {
       },
       {
         title: '操作',
-        width: '30%',
+        width: '20%',
         render: (text, record) => (
           <>
             <span 
@@ -276,14 +282,6 @@ class Customer extends Component {
     });
   };
 
-  getPersonValues = (values) => {
-    this.setState({
-      uid: values.uid,
-      username: values.username,
-      name: values.name
-    })
-  }
-
   render () {
     const { 
       customer: { 
@@ -309,7 +307,7 @@ class Customer extends Component {
             <span>公司名称</span>
             <Input
               style={{ width: '100%' }}
-              placeholder="请输入业务编号"
+              placeholder="请输入公司名称"
               onChange={value => {
                 dispatch({
                   type: 'customer/save',
@@ -352,6 +350,12 @@ class Customer extends Component {
                   index: 'currentParameter',
                 });
               }}
+              onFocus={() => {
+                dispatch({
+                  type: 'customer/getCustomerTypes',
+                  payload: {}
+                })
+              }}
               value={ctid}
             >
               <Option value="all">全部</Option>
@@ -382,12 +386,7 @@ class Customer extends Component {
           <Col span={8}>
             <div className="btnContainer">
               <Button type="primary" onClick={this.query}>搜索</Button>
-              <Button
-                type="default"
-                onClick={() => { this.reset() }}
-              >
-                重置
-              </Button>
+              <Button type="default" onClick={() => { this.reset() }}>重置</Button>
             </div>
           </Col>
         </Row>

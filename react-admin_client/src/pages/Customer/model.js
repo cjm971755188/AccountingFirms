@@ -1,4 +1,4 @@
-import { getCustomerList, createCustomer, editCustomer, deleteCustomer, didPay, getCustomerTypes, getSalary } from '../../services/customer';
+import { getCustomerList, createCustomer, editCustomer, deleteCustomer, didPay, getCustomerTypes, getSalarys, getUsers } from '../../services/customer';
 
 export default {
   namespace: 'customer',
@@ -23,7 +23,8 @@ export default {
     },
     detail: [],
     customerTypes: [],
-    salarys: []
+    salarys: [],
+    users: []
   },
 
   effects: {
@@ -59,10 +60,7 @@ export default {
     *del({ payload }, { call, put }) {
       try {
         const res = yield call(deleteCustomer, payload);
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
@@ -86,10 +84,7 @@ export default {
     *didPay({ payload }, { call, put }) {
       try {
         const res = yield call(didPay, payload);
-        if (res.code === 200) {
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
+        return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
@@ -112,7 +107,7 @@ export default {
     },
     *getSalarys({ payload }, { call, put }) {
       try {
-        const res = yield call(getSalary, payload); 
+        const res = yield call(getSalarys, payload); 
         if (res.code === 200) {
           yield put({
             type: 'save',
@@ -125,7 +120,23 @@ export default {
       } catch (e) {
         return Promise.reject(e);
       }
-    }
+    },
+    *getUsers({ payload }, { call, put }) {
+      try {
+        const res = yield call(getUsers, payload); 
+        if (res.code === 200) {
+          yield put({
+            type: 'save',
+            payload: res.data,
+            index: 'users'
+          });
+          return Promise.resolve(res);
+        }
+        return Promise.reject(res.msg);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
   },
 
   reducers: {

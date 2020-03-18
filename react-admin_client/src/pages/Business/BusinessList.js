@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
-import { Card, Popconfirm, Table, Divider, Button, Row, Col, Input, Icon, message, Select } from 'antd';
+import { Card, Popconfirm, Table, Divider, Button, Row, Col, Icon, message, Select } from 'antd';
 import { connect } from 'dva';
+
+import moment from 'moment';
+import SearchPerson from '../../components/searchPerson'
+import SearchCustomer from '../../components/searchCustomer'
 
 const { Option } = Select;
 
@@ -17,27 +21,17 @@ class Business extends Component {
   UNSAFE_componentWillMount () {
     const {
       business: {
-        list: { pageSize = 10, pageNum = 0 },
+        list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
-          btid = '',
-          accountant = '',
-          customer = '',
-          type = 'all',
-          state = 'all'
+          uid = '',
+          cid = '',
+          btid = 'all',
+          progress = 'all'
         },
       },
       history: { action },
       dispatch,
     } = this.props;
-    const payload = {
-      btid,
-      accountant,
-      customer,
-      type: type === 'all' ? null : type,
-      state: state === 'all' ? null : state,
-      pageNum,
-      pageSize,
-    };
     if (action !== 'POP') {
       dispatch({
         type: 'business/reset',
@@ -45,39 +39,43 @@ class Business extends Component {
       dispatch({
         type: 'business/fetchList',
         payload: {
-          btid: null,
-          accountant: null,
-          customer: null,
-          type: null,
-          state: null,
-          pageNum: 0,
+          uid: '',
+          cid: '',
+          btid: 'all',
+          progress: 'all',
+          pageNum: 1,
           pageSize,
         },
       });
       dispatch({
         type: 'business/save',
         payload: {
-          choosedBtid: '',
-          choosedAccountant: '',
-          choosedCustomer: '',
-          choosedType: 'all',
-          choosedState: 'all'
+          choosedUid: '',
+          choosedCid: '',
+          choosedBtid: 'all',
+          choosedProgress: 'all'
         },
         index: 'comfirmData',
       });
     } else {
       dispatch({
         type: 'business/fetchList',
-        payload,
+        payload: {
+          uid,
+          cid,
+          btid,
+          progress,
+          pageNum,
+          pageSize,
+        },
       });
       dispatch({
         type: 'business/save',
         payload: {
+          choosedUid: uid,
+          choosedCid: cid,
           choosedBtid: btid,
-          choosedAccountant: accountant,
-          choosedCustomer: customer,
-          choosedType: type,
-          choosedState: state
+          choosedProgress: progress
         },
         index: 'comfirmData',
       });
@@ -91,79 +89,108 @@ class Business extends Component {
   query = () => {
     const {
       business: {
-        list: { pageSize = 10, pageNum = 0 },
+        list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
-          btid = '',
-          accountant = '',
-          customer = '',
-          type = 'all',
-          state = 'all'
+          uid = '',
+          cid = '',
+          btid = 'all',
+          progress = 'all'
         },
       },
       dispatch,
     } = this.props;
-    const payload = {
-      btid,
-      accountant,
-      customer,
-      type: type === 'all' ? null : type,
-      state: state === 'all' ? null : state,
-      pageNum,
-      pageSize,
-    };
     dispatch({
       type: 'business/fetchList',
-      payload,
+      payload: {
+        uid,
+        cid,
+        btid,
+        progress,
+        pageNum,
+        pageSize,
+      },
     });
     dispatch({
       type: 'business/save',
       payload: {
+        choosedUid: uid,
+        choosedCid: cid,
         choosedBtid: btid,
-        choosedAccountant: accountant,
-        choosedCustomer: customer,
-        choosedType: type,
-        choosedState: state
+        choosedProgress: progress
       },
       index: 'comfirmData',
+    });
+  };
+
+  reset = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'business/fetchList',
+      payload: {
+        uid: '',
+        cid: '',
+        btid: 'all',
+        progress: 'all',
+        pageNum: 1,
+        pageSize: 10,
+      },
+    });
+    dispatch({
+      type: 'business/reset',
+      payload: {},
     });
   };
 
   getColumns = () => {
     const { dispatch } = this.props
     const columns = [
-      { title: '编号', dataIndex: 'bid', key: 'bid' },
-      { title: '业务类型', dataIndex: 'type', key: 'type' },
-      { title: '税号', dataIndex: 'cID', key: 'cID' },
-      { title: '公司名称', dataIndex: 'name', key: 'name' },
+      { title: '业务类型', dataIndex: 'btName', key: 'btName' },
+      { title: '税号', dataIndex: 'ID', key: 'ID' },
+      { title: '公司名称', dataIndex: 'cName', key: 'cName' },
       { title: '联系人', dataIndex: 'linkName', key: 'linkName' },
       { title: '联系方式', dataIndex: 'linkPhone', key: 'linkPhone' },
-      { title: '联系人身份证号', dataIndex: 'linkID', key: 'linkID' },
-      { title: '开始时间', dataIndex: 'startTime', key: 'startTime' },
-      { title: '结束时间', dataIndex: 'endTime', key: 'endTime' },
+      { 
+        title: '开始时间', 
+        render: record => {
+          if (record.startTime) {
+            return <span>{moment(record.startTime).format('YYYY-MM-DD')}</span>
+          }
+          return null
+        }
+      },
+      { 
+        title: '结束时间',
+        render: record => {
+          if (record.endTime) {
+            return <span>{moment(record.endTime).format('YYYY-MM-DD')}</span>
+          }
+          return null
+        }
+      },
       { title: '酬金', dataIndex: 'salary', key: 'salary' },
-      { title: '负责人', dataIndex: 'aName', key: 'aName' },
+      { title: '负责人', dataIndex: 'uName', key: 'uName' },
       { 
         title: '状态', 
         render: record => {
-          if (record.state === '已结束') {
+          if (record.progress === '已结束') {
             return (
               <Row>
                 <Icon type="check-circle" theme="twoTone" twoToneColor="#43CD80" />
-                <span style={{ marginLeft: '8px' }}>{record.state}</span>
+                <span style={{ marginLeft: '8px' }}>{record.progress}</span>
               </Row>
             )
-          } else if (record.state === '未结算') {
+          } else if (record.progress === '未结算') {
             return (
               <Row>
                 <Icon type="info-circle" theme="twoTone" twoToneColor="#CD3333" />
-                <span style={{ marginLeft: '8px' }}>{record.state}</span>
+                <span style={{ marginLeft: '8px' }}>{record.progress}</span>
               </Row>
             )
           }
           return (
             <Row>
               <Icon type="clock-circle" theme="twoTone" twoToneColor="#FFD700" />
-              <span style={{ marginLeft: '8px' }}>{record.state}</span>
+              <span style={{ marginLeft: '8px' }}>{record.progress}</span>
             </Row>
           )
         }
@@ -173,40 +200,52 @@ class Business extends Component {
         width: '15%',
         render: (text, record) => (
           <>
-            {record.state === '办理中' ? <><Popconfirm
+            {record.progress === '办理中' ? <><Popconfirm
               title="确认该业务已经办理完成么？"
               cancelText="取消"
               okText="确认"
               onConfirm={() => {
                 dispatch({
-                  type: 'business/didSuccess',
-                  payload: {},
+                  type: 'business/didComplete',
+                  payload: { bid: record.bid },
                 })
                   .then((res) => {
-                    message.success(`业务编号'${record.bid}'办理确认完成成功`);
+                    if (res.msg === '') {
+                      message.success(`'${record.cName}'的'${record.btName}'业务完成办理成功`);
+                    } else {
+                      message.error(res.msg)
+                    }
+                    this.query();
                   })
-                  .catch(() => {
-                    message.error(`业务编号'${record.bid}'办理确认完成失败`);
+                  .catch((e) => {
+                    message.error(e);
+                    this.query();
                   });
               }}
             >
               <span className='spanToa'>确认完成</span>
             </Popconfirm>
             <Divider type="vertical" /></> : null}
-            {record.state === '未结算' ? <><Popconfirm
+            {record.progress === '未结算' ? <><Popconfirm
               title="确认该业务已经结算完成么？"
               cancelText="取消"
               okText="确认"
               onConfirm={() => {
                 dispatch({
                   type: 'business/didPay',
-                  payload: {},
+                  payload: { bid: record.bid },
                 })
                   .then((res) => {
-                    message.success(`业务编号'${record.bid}'结算成功`);
+                    if (res.msg === '') {
+                      message.success(`'${record.cName}'的'${record.btName}'业务完成结算成功`);
+                    } else {
+                      message.error(res.msg)
+                    }
+                    this.query();
                   })
-                  .catch(() => {
-                    message.error(`业务编号'${record.bid}'结算失败`);
+                  .catch((e) => {
+                    message.error(e);
+                    this.query();
                   });
               }}
             >
@@ -215,19 +254,25 @@ class Business extends Component {
             <Divider type="vertical" /></> : null}
             <Popconfirm
               icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
-              title="确认删除该业务么？"
+              title="该业务【酬金未结算】，确认删除么？"
               cancelText="取消"
               okText="确认"
               onConfirm={() => {
                 dispatch({
                   type: 'business/del',
-                  payload: {},
+                  payload: { bid: record.bid },
                 })
-                  .then(() => {
-                    message.success(`'${record.name}'的'${record.type}'业务删除成功`);
+                  .then((res) => {
+                    if (res.msg === '') {
+                      message.success(`'${record.cName}'的'${record.btName}'业务删除成功`);
+                    } else {
+                      message.error(res.msg)
+                    }
+                    this.query();
                   })
-                  .catch(() => {
-                    message.error(`'${record.name}'的'${record.type}'业务辞退失败`);
+                  .catch((e) => {
+                    message.error(e);
+                    this.query();
                   });
               }}
             >
@@ -243,20 +288,18 @@ class Business extends Component {
   handleTableChange = (pagination, filters, sorter) => {
     const {
       business: {
-        choosedBtid = '',
-        choosedAccountant = '',
-        choosedCustomer = '',
-        choosedType = 'all',
-        choosedState = 'all'
+        choosedUid = '',
+        choosedCid = '',
+        choosedBtid = 'all',
+        choosedProgress = 'all'
       },
       dispatch,
     } = this.props;
     const payload = {
-      btid: choosedBtid && (choosedBtid.trim() || null),
-      accountant: choosedAccountant && (choosedAccountant.trim() || null),
-      customer: choosedCustomer && (choosedCustomer.trim() || null),
-      type: choosedType === 'all' ? null : choosedType,
-      state: choosedState === 'all' ? null : choosedState,
+      uid: choosedUid && (choosedUid.trim() || null),
+      cid: choosedCid && (choosedCid.trim() || null),
+      btid: choosedBtid,
+      progress: choosedProgress,
       pageNum: pagination.current,
       pageSize: pagination.pageSize,
     };
@@ -266,19 +309,37 @@ class Business extends Component {
     });
   };
 
+  getPersonValues = (values) => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'business/save',
+      payload: { uid: values.uid },
+      index: 'currentParameter',
+    });
+  }
+  
+  getCustomerValues = (values) => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'business/save',
+      payload: { cid: values.cid },
+      index: 'currentParameter',
+    });
+  }
+
   render () {
     const { 
       business: { 
         list: { 
           data = [], 
           pageSize, 
-          current, 
+          pageNum, 
           total 
         },
         currentParameter: {
-          id, accountant, customer, type, state
+          uid, cid, btid, progress
         },
-        businessTypes: { types }
+        businessTypes: { businessTypes = [] }
       }, 
       loading,
       dispatch
@@ -288,55 +349,13 @@ class Business extends Component {
       <Card>
         <Row gutter={[48, 16]} className='searchBox'>
           <Col span={8}>
-            <span>业务编号</span>
-            <Input
-              style={{ width: '100%' }}
-              placeholder="请输入业务编号"
-              onChange={value => {
-                dispatch({
-                  type: 'business/save',
-                  payload: { id: value.target.value },
-                  index: 'currentParameter',
-                });
-              }}
-              value={id}
-              onPressEnter={() => { this.query() }}
-            />
+            <span>公司名称</span>
+            <SearchCustomer sendValues={this.getCustomerValues} width='100%' cid={cid} />
           </Col>
           <Col span={8}>
             <span>负责员工</span>
-            <Input
-              style={{ width: '100%' }}
-              placeholder="请输入员工姓名"
-              onChange={value => {
-                dispatch({
-                  type: 'business/save',
-                  payload: { accountant: value.target.value },
-                  index: 'currentParameter',
-                });
-              }}
-              value={accountant}
-              onPressEnter={() => { this.query() }}
-            />
+            <SearchPerson sendValues={this.getPersonValues} width='100%' uid={uid} did='3' />
           </Col>
-          <Col span={8}>
-            <span>公司名称</span>
-            <Input
-              style={{ width: '100%' }}
-              placeholder="请输入客户公司名称"
-              onChange={value => {
-                dispatch({
-                  type: 'business/save',
-                  payload: { customer: value.target.value },
-                  index: 'currentParameter',
-                });
-              }}
-              value={customer}
-              onPressEnter={() => { this.query() }}
-            />
-          </Col>
-        </Row>
-        <Row gutter={[48, 16]} className='searchBox'>
           <Col span={8}>
             <span>业务类型</span>
             <Select 
@@ -345,14 +364,14 @@ class Business extends Component {
               onChange={value => {
                 dispatch({
                   type: 'business/save',
-                  payload: { type: value },
+                  payload: { btid: value },
                   index: 'currentParameter',
                 });
               }}
-              value={type}
+              value={btid}
             >
               <Option value="all">全部</Option>
-              {types && types.map((value, key) => {
+              {businessTypes && businessTypes.map((value, key) => {
                 return <Option value={value.btid} key={value.btid}>{value.name}</Option>
               })}
             </Select>
@@ -365,14 +384,14 @@ class Business extends Component {
               onChange={value => {
                 dispatch({
                   type: 'business/save',
-                  payload: { state: value },
+                  payload: { progress: value },
                   index: 'currentParameter',
                 });
               }}
-              value={state}
+              value={progress}
             >
               <Option value="all">全部</Option>
-              <Option value='进行中'>进行中</Option>
+              <Option value='办理中'>办理中</Option>
               <Option value='未结算'>未结算</Option>
               <Option value='已结束'>已结束</Option>
             </Select>
@@ -380,20 +399,10 @@ class Business extends Component {
           <Col span={8}>
             <div className="btnContainer">
               <Button type="primary" onClick={this.query}>搜索</Button>
-              <Button
-                type="default"
-                onClick={() => {
-                  dispatch({
-                    type: 'business/reset',
-                  });
-                  this.query()
-                }}
-              >
-                重置
-              </Button>
+              <Button type="default" onClick={() => { this.reset() }}>重置</Button>
             </div>
           </Col>
-        </Row>  
+        </Row>
       </Card>
       <br/>
       <Card 
@@ -403,14 +412,19 @@ class Business extends Component {
             <Button
               icon="gift"
               style={{ marginRight: 8 }}
-              onClick={() => { this.props.history.push('/home/Business/help') }}
+              onClick={() => { this.props.history.push('/home/business/guide') }}
             >
               业务指南
             </Button>
-              <Button
+            <Button
               icon="plus"
               type="primary"
-              onClick={() => { this.props.history.push('/home/Business/create') }}
+              onClick={() => { 
+                this.props.history.push({
+                  pathname: '/home/business/create',
+                  state: { flag: 'create', record: null }
+                }) 
+              }}
             >
               添加业务
             </Button>
@@ -423,7 +437,7 @@ class Business extends Component {
           rowKey={row => row.bid}
           dataSource={data}
           columns={this.getColumns()}
-          pagination={{ total, pageSize, current }}
+          pagination={{ total, pageSize, current: pageNum }}
           onChange={this.handleTableChange}
         />
       </Card>

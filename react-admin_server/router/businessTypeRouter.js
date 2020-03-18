@@ -26,8 +26,8 @@ router.post('/getBusinessTypeList', (req, res) => {
 
 router.post('/createBusinessType', (req, res) => {
   let params = req.body
-  let s = `SELECT * FROM businesstype WHERE btid = '${params.btid}'`
-  db.query(s, (err, results) => {
+  let sql = `SELECT * FROM businesstype WHERE btid = '${params.btid}'`
+  db.query(sql, (err, results) => {
     if (err) throw err;
     if (results.length !== 0) res.send({ code: 200, data: {}, msg: '该业务类型已存在，不可重复添加！' })
     else {
@@ -42,8 +42,8 @@ router.post('/createBusinessType', (req, res) => {
 
 router.post('/editBusinessType', (req, res) => {
   let params = req.body
-  let s = `SELECT * FROM businesstype WHERE btid = '${params.btid}'`
-  db.query(s, (err, results) => {
+  let sql = `SELECT * FROM businesstype WHERE btid = '${params.btid}'`
+  db.query(sql, (err, results) => {
     if (err) throw err;
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该业务类型名称不存在，不可修改！' })
     else {
@@ -58,15 +58,15 @@ router.post('/editBusinessType', (req, res) => {
 
 router.post('/deleteBusinessType', (req, res) => {
   let params = req.body
-  let s = `SELECT * FROM businesstype WHERE btid = '${params.btid}'`
-  db.query(s, (err, results) => {
+  let sql = `SELECT * FROM businesstype WHERE btid = '${params.btid}'`
+  db.query(sql, (err, results) => {
     if (err) throw err;
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该业务类型不存在，不可删除！' })
     else {
-      let q = `SELECT * FROM business WHERE btid = '${params.btid}'`
-      db.query(q, (err, result) => {
+      let sql = `SELECT * FROM business WHERE btid = '${params.btid}'`
+      db.query(sql, (err, results) => {
         if (err) throw err;
-        if (result.length !== 0) res.send({ code: 200, data: {}, msg: `该业务类型现有${results.length}个业务使用，不可删除！` })
+        if (results.length !== 0) res.send({ code: 200, data: {}, msg: `该业务类型现有${results.length}个业务使用，不可删除！` })
         else {
           let sql = `DELETE FROM businesstype WHERE btid = '${params.btid}'`
           db.query(sql, (err, results) => {
@@ -107,8 +107,8 @@ router.post('/createGuide', (req, res) => {
 
 router.post('/editGuide', (req, res) => {
   let params = req.body
-  let s = `SELECT * FROM guide WHERE gid = '${params.gid}'`
-  db.query(s, (err, results) => {
+  let sql = `SELECT * FROM guide WHERE gid = '${params.gid}'`
+  db.query(sql, (err, results) => {
     if (err) throw err;
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该业务步骤不存在，不可修改！' })
     else {
@@ -123,8 +123,8 @@ router.post('/editGuide', (req, res) => {
 
 router.post('/deleteGuide', (req, res) => {
   let params = req.body
-  let s = `SELECT * FROM guide WHERE gid = '${params.gid}'`
-  db.query(s, (err, results) => {
+  let sql = `SELECT * FROM guide WHERE gid = '${params.gid}'`
+  db.query(sql, (err, results) => {
     if (err) throw err;
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该业务步骤不存在，不可删除！' })
     else {
@@ -133,7 +133,7 @@ router.post('/deleteGuide', (req, res) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })
       })
-      let sql2 = `UPDATE guide SET step = step - 1 where step >= ${params.step}`
+      let sql2 = `UPDATE guide SET step = step - 1 where step >= ${params.step} and btid = ${params.btid}`
       db.query(sql2, (err, results) => { if (err) throw err })
       let sql3 = `ALTER TABLE guide AUTO_INCREMENT = 1;`
       db.query(sql3, (err, results) => { if (err) throw err })

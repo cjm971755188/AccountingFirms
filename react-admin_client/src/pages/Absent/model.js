@@ -1,7 +1,7 @@
-import { getPersonList, createPerson, editPerson, deletePerson, getDepartments } from '../../services/person';
+import { getAbsentList, createAbsent, getDetail, approval, deleteAbsent } from '../../services/absent';
 
 export default {
-  namespace: 'person',
+  namespace: 'absent',
   state: {
     list: {
       data: [],
@@ -10,26 +10,22 @@ export default {
       total: 0
     },
     currentParameter: {
-      username: '',
-      name: '',
-      did: 'all',
-      absent: 'all'
+      uid: '',
+      type: 'all',
+      progress: 'all'
     },
     comfirmData: {
-      choosedUsername: '',
-      choosedName: '',
-      choosedPid: 'all',
-      choosedAbsent: 'all'
+      choosedUid: '',
+      choosedType: 'all',
+      choosedProgress: 'all',
     },
-    detail: [],
-    departments: [],
-    permissions: []
+    detail: []
   },
 
   effects: {
     *fetchList({ payload }, { call, put }) {
       try {
-        const res = yield call(getPersonList, payload);
+        const res = yield call(getAbsentList, payload);
         yield put({
           type: 'save',
           payload: res.data,
@@ -42,15 +38,31 @@ export default {
     },
     *create({ payload }, { call, put }) {
       try {
-        const res = yield call(createPerson, payload);
+        const res = yield call(createAbsent, payload);
         return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
       }
     },
-    *edit({ payload }, { call, put }) {
+    *getDetail({ payload }, { call, put }) {
       try {
-        const res = yield call(editPerson, payload);
+        const res = yield call(getDetail, payload);
+        if (res.code === 200) {
+          yield put({
+            type: 'save',
+            payload: res.data,
+            index: 'detail'
+          });
+          return Promise.resolve(res);
+        }
+        return Promise.reject(res.msg);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *approval({ payload }, { call, put }) {
+      try {
+        const res = yield call(approval, payload);
         return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
@@ -58,24 +70,8 @@ export default {
     },
     *del({ payload }, { call, put }) {
       try {
-        const res = yield call(deletePerson, payload);
+        const res = yield call(deleteAbsent, payload);
         return Promise.resolve(res);
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    },
-    *getDepartments({ payload }, { call, put }) {
-      try {
-        const res = yield call(getDepartments, payload);
-        if (res.code === 200) {
-          yield put({
-            type: 'save',
-            payload: res.data,
-            index: 'departments'
-          });
-          return Promise.resolve(res);
-        }
-        return Promise.reject(res.msg);
       } catch (e) {
         return Promise.reject(e);
       }
@@ -101,16 +97,14 @@ export default {
           total: 0
         },
         currentParameter: {
-          username: '',
-          name: '',
-          did: 'all',
-          absent: 'all'
+          uid: '',
+          type: 'all',
+          progress: 'all'
         },
         comfirmData: {
-          choosedUsername:'',
-          choosedName: '',
-          choosedPid: 'all',
-          choosedAbsent: 'all'
+          choosedUid: '',
+          choosedType: 'all',
+          choosedProgress: 'all',
         },
       };
     },

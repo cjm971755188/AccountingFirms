@@ -11,7 +11,7 @@ const db = require('./config/db')
 db.connect((err) => {
   if (err) throw err;
   console.log('Mysql connected')
-  let sql = `SELECT * FROM user where state = 'unlock' and pid != '1'`
+  let sql = `SELECT * FROM user where state = 'unlock' and did != '1'`
   sql = sql + ` ORDER BY uid`
   db.query(sql, (err, results) => {
     if (err) throw err;
@@ -61,21 +61,19 @@ app.all('*', function(req, res, next) {
 // 引入路由
 const userRouter = require('./router/userRouter')
 const personRouter = require('./router/personRouter')
-const leaveRouter = require('./router/leaveRouter')
+const absentRouter = require('./router/absentRouter')
 const customerRouter = require('./router/customerRouter')
 const businessRouter = require('./router/businessRouter')
-const positionRouter = require('./router/positionRouter')
-const permissionRouter = require('./router/permissionRouter')
+const departmentRouter = require('./router/departmentRouter')
 const customerTypeRouter = require('./router/customerTypeRouter')
 const businessTypeRouter = require('./router/businessTypeRouter')
-const otherRouter = require('./router/otherRouter')
+const accountRouter = require('./router/accountRouter')
 app.use('/user', userRouter)
 app.use('/person', personRouter)
-app.use('/leave', leaveRouter)
+app.use('/absent', absentRouter)
 app.use('/customer', customerRouter)
 app.use('/business', businessRouter)
-app.use('/position', positionRouter)
-app.use('/permission', permissionRouter)
+app.use('/department', departmentRouter)
 app.use('/customerType', customerTypeRouter)
 app.use('/businessType', businessTypeRouter)
-app.use('/other', otherRouter)
+app.use('/account', accountRouter)

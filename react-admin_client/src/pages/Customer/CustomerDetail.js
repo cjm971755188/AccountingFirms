@@ -53,7 +53,7 @@ class CustomerDetail extends Component {
       <Card title='客户详情'>
         <Row className='detailTitie'>基本信息</Row>
         <Row>
-          <Col span={4}>图片</Col>
+          <Col span={8}>图片</Col>
           <Col span={16}>
             {basis && Object.keys(basis).map((value, key) => {
               return (

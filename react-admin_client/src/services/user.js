@@ -9,3 +9,7 @@ export function getPermissions(params) { return request('/user/getPermissions', 
 export function searchCustomer(params) { return request('/user/searchCustomer', { method: 'POST', body: { ...params } }) }
 
 export function searchPerson(params) { return request('/user/searchPerson', { method: 'POST', body: { ...params } }) }
+
+export function editPerson(params) { return request('/person/editPerson', { method: 'POST', body: { ...params } }) }
+
+export function changePerson(params) { return request('/person/editPerson', { method: 'POST', body: { ...params } }) }

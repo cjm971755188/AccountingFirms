@@ -37,7 +37,6 @@ class BusinessCreate extends Component {
     const { cid, uid } = this.state
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log('edit-values: ', values)
       if (!err) {
         dispatch({
           type: 'business/create',
@@ -121,7 +120,7 @@ class BusinessCreate extends Component {
                 <span style={{ color: 'rgba(0, 0, 0, 0.85)', fontWeight: 500 }}>负责会计:</span>
               </Col>
               <Col span={6}>
-                <SearchPerson sendValues={this.getPersonValues} width='100%' uid={uid} users={users} did='2' />
+                <SearchPerson sendValues={this.getPersonValues} width='100%' uid={uid} users={users} did='3' />
               </Col>
             </Row>
           </Form.Item>

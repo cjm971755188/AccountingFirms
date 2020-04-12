@@ -1,4 +1,4 @@
-import { getPersonList, createPerson, editPerson, deletePerson, getDepartments } from '../../services/person';
+import { getPersonList, getDetail, createPerson, editPerson, deletePerson, getDepartments } from '../../services/person';
 
 export default {
   namespace: 'person',
@@ -21,7 +21,16 @@ export default {
       choosedPid: 'all',
       choosedAbsent: 'all'
     },
-    detail: [],
+    detail: {
+      basis: {},
+      analysis: {
+        option: {},
+        bOption: {},
+        btOption: {},
+        attendance: {},
+        sum: 0
+      },
+    },
     departments: [],
     permissions: []
   },
@@ -34,6 +43,19 @@ export default {
           type: 'save',
           payload: res.data,
           index: 'list'
+        });
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *getDetail({ payload }, { call, put }) {
+      try {
+        const res = yield call(getDetail, payload);
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'detail'
         });
         return Promise.resolve(res);
       } catch (e) {
@@ -111,6 +133,16 @@ export default {
           choosedName: '',
           choosedPid: 'all',
           choosedAbsent: 'all'
+        },
+        detail: {
+          basis: {},
+          analysis: {
+            option: {},
+            bOption: {},
+            btOption: {},
+            attendance: {},
+            sum: 0
+          },
         },
       };
     },

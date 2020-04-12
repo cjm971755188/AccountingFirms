@@ -20,6 +20,8 @@
     "customize-cra": "^0.9.1",
     "dva": "^2.4.1",
     "dva-loading": "^3.0.20",
+    "echarts": "^4.7.0",
+    "echarts-for-react": "^2.0.15-beta.1",
     "eject": "0.0.4",
     "http-proxy-middleware": "^0.20.0",
     "less": "^3.10.3",

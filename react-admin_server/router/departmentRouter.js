@@ -63,12 +63,12 @@ router.post('/deleteDepartment', (req, res) => {
     if (err) throw err;
     if (results.length === 0) res.send({ code: -1, data: {}, msg: '该部门职位不存在，不可删除！' })
     else {
-      let sql = `DELETE FROM department WHERE did = '${params.did}';`
+      let sql = `DELETE FROM department WHERE did = '${params.did}'`
       db.query(sql, (err, results) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })
       })
-      let sql2 = `ALTER TABLE department AUTO_INCREMENT = 1;`
+      let sql2 = `ALTER TABLE department AUTO_INCREMENT = 1`
       db.query(sql2, (err, results) => { if (err) throw err })
     }
   })

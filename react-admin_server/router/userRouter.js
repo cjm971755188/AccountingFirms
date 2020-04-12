@@ -24,9 +24,12 @@ router.post('/login', (req, res) => {
               "uid": results[0].uid,
               "username": results[0].username,
               "name": results[0].name,
+              "sex": results[0].sex,
+              "phone": results[0].phone,
               "permission": results[0].permission,
               "absent": results[0].absent,
               "state": results[0].state,
+              "change": results[0].password === 123456 ? 1 : 0
             },
             msg: ''
           })

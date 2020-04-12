@@ -1,7 +1,5 @@
 import User from './pages/User_Home/User';
 import UserLogin from './pages/User_Home/UserLogin';
-import UserForget from './pages/User_Home/UserForget';
-import UserReset from './pages/User_Home/UserReset';
 
 import Home from './pages/User_Home/Home';
 import Main from './pages/Main/Main';
@@ -54,16 +52,6 @@ export default [
         component: UserLogin, 
         exact: true
       },
-      { 
-        path: '/forget', 
-        component: UserForget, 
-        exact: true
-      },
-      { 
-        path: '/reset', 
-        component: UserReset, 
-        exact: true
-      }
     ],
   },
   {

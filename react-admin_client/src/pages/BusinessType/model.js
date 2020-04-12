@@ -64,10 +64,8 @@ export default {
       }
     },
     *createGuide({ payload }, { call, put }) {
-      console.log('payload: ', payload)
       try {
         const res = yield call(createGuide, payload);
-        console.log('res: ', res)
         return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);
@@ -75,7 +73,6 @@ export default {
     },
     *editGuide({ payload }, { call, put }) {
       try {
-        console.log('payload: ', payload)
         const res = yield call(editGuide, payload);
         return Promise.resolve(res);
       } catch (e) {

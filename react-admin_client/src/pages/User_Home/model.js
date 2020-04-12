@@ -1,4 +1,4 @@
-import { userLogin, getMenus, getPermissions, searchCustomer, searchPerson } from '../../services/user';
+import { userLogin, getMenus, getPermissions, searchCustomer, searchPerson, editPerson, changePerson } from '../../services/user';
 
 export default {
   namespace: 'user',
@@ -19,7 +19,6 @@ export default {
         localStorage.setItem('user', JSON.stringify(res.data));
         return Promise.resolve(res);
       } catch (e) {
-        console.log('e: ', e)
         return Promise.reject(e);
       }
     },
@@ -60,6 +59,23 @@ export default {
         return Promise.reject(e);
       }
     },
+    *edit({ payload }, { call, put }) {
+      try {
+        const res = yield call(editPerson, payload);
+        localStorage.setItem('user', JSON.stringify(res.data));
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *change({ payload }, { call, put }) {
+      try {
+        const res = yield call(changePerson, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
   },
 
   reducers: {
@@ -78,7 +94,7 @@ export default {
     setup({ dispatch }) {
       dispatch({
         type: 'save',
-        payload: JSON.parse(localStorage.getItem('user') || {}),
+        payload: JSON.parse(localStorage.getItem('user') || { user: '' }),
         index: 'user'
       });
     },

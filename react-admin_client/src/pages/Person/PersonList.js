@@ -165,12 +165,8 @@ class Person extends Component {
               onClick={() => { 
                 this.props.history.push({
                   pathname: '/home/person/detail',
-                  state: {}
+                  state: { uid: record.uid, did: record.did }
                 })
-                /* dispatch({
-                  type: 'person/getDetail',
-                  payload: {}
-                }) */
               }}
             >
               查看详情

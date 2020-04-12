@@ -80,7 +80,7 @@ router.post('/createBusiness', (req, res) => {
     if (results.length !== 0) res.send({ code: 200, data: {}, msg: '该业务已存在，不可重复添加！' })
     else {
       const time = (new Date()).valueOf();
-      sql = `INSERT INTO business VALUES(null, '${params.btid}', '${params.cid}', ${time}, '', ${params.salary}, '${params.uid}', '办理中', 'unlock');`
+      sql = `INSERT INTO business VALUES(null, '${params.btid}', '${params.cid}', ${time}, '', '', ${params.salary}, '${params.uid}', '办理中', 'unlock');`
       db.query(sql, (err, results) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })
@@ -130,7 +130,7 @@ router.post('/didPay', (req, res) => {
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该业务不存在，不可结算酬金！' })
     else {
       const time = (new Date()).valueOf();
-      let sql = `UPDATE business SET progress = '已结束', payTime = ${time} WHERE bid = ${params.bid};`
+      let sql = `UPDATE business SET progress = '已完成', payTime = ${time} WHERE bid = ${params.bid};`
       db.query(sql, (err, results) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })

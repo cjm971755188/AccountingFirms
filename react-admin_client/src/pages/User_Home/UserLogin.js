@@ -39,7 +39,6 @@ class UserLogin extends Component {
 
   render () {
     const { getFieldDecorator } = this.props.form;
-
     return (
       <Form onSubmit={this.handleSubmit}>
         <Form.Item>
@@ -67,11 +66,11 @@ class UserLogin extends Component {
           )}
         </Form.Item>
         <Form.Item>
-          <a style={{ float: 'right' }} href="/user/forget">忘记密码？</a>
+          <span style={{ color: 'grey' }}>注：若忘记密码，联系管理员重置密码</span>
           <Button 
             type="primary" 
             htmlType="submit" 
-            style={{ width: '100%', margin: '5% 0 10% 0' }}
+            style={{ width: '100%', margin: '0 0 10% 0' }}
           >
             登录
           </Button>

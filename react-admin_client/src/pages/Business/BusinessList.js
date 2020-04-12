@@ -172,7 +172,7 @@ class Business extends Component {
       { 
         title: '状态', 
         render: record => {
-          if (record.progress === '已结束') {
+          if (record.progress === '已完成') {
             return (
               <Row>
                 <Icon type="check-circle" theme="twoTone" twoToneColor="#43CD80" />
@@ -200,7 +200,7 @@ class Business extends Component {
         width: '15%',
         render: (text, record) => (
           <>
-            {record.progress === '办理中' ? <><Popconfirm
+            {record.progress === '办理中' ? <Popconfirm
               title="确认该业务已经办理完成么？"
               cancelText="取消"
               okText="确认"
@@ -224,9 +224,8 @@ class Business extends Component {
               }}
             >
               <span className='spanToa'>确认完成</span>
-            </Popconfirm>
-            <Divider type="vertical" /></> : null}
-            {record.progress === '未结算' ? <><Popconfirm
+            </Popconfirm> : null}
+            {record.progress === '未结算' ? <Popconfirm
               title="确认该业务已经结算完成么？"
               cancelText="取消"
               okText="确认"
@@ -250,8 +249,8 @@ class Business extends Component {
               }}
             >
               <span className='spanToa'>确认结算</span>
-            </Popconfirm>
-            <Divider type="vertical" /></> : null}
+            </Popconfirm> : null}
+            {record.progress === '办理中' ? <><Divider type="vertical" />
             <Popconfirm
               icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
               title="该业务【酬金未结算】，确认删除么？"
@@ -277,7 +276,7 @@ class Business extends Component {
               }}
             >
               <span className='spanToa'>删除</span>
-            </Popconfirm>
+            </Popconfirm></> : null}
           </>
         )
       }
@@ -393,7 +392,7 @@ class Business extends Component {
               <Option value="all">全部</Option>
               <Option value='办理中'>办理中</Option>
               <Option value='未结算'>未结算</Option>
-              <Option value='已结束'>已结束</Option>
+              <Option value='已完成'>已完成</Option>
             </Select>
           </Col>
           <Col span={8}>

@@ -11,22 +11,23 @@ const db = require('./config/db')
 db.connect((err) => {
   if (err) throw err;
   console.log('Mysql connected')
-  let sql = `SELECT * FROM user where state = 'unlock' and did != '1'`
+  let sql = `SELECT * FROM user where state = 'unlock'`
   sql = sql + ` ORDER BY uid`
   db.query(sql, (err, results) => {
     if (err) throw err;
     for (let i = 0; i < results.length; i++) {
-      let s = `SELECT * FROM absent where state = '已通过' and uid = '${results[i].uid}'`
-      db.query(s, (err, result) => {
+      let uid = results[i].uid
+      let s = `SELECT * FROM absent where progress = '已通过' and uid = '${results[i].uid}'`
+      db.query(s, (err, results) => {
         if (err) throw err;
-        if (result.length === 0 && results[i].abent !== '在班') {
-          let q = `UPDATE user SET absent = '在班' where uid = '${results[i].uid}'`
+        if (results.length === 0) {
+          let q = `UPDATE user SET absent = '在班' where uid = '${uid}'`
           db.query(q, (err, r) => { if (err) throw err })
-        } else if (result.length !== 0 && results[i].abent !== '请假') {
-          for (let j = 0; j < result.length; j++) {
+        } else {
+          for (let j = 0; j < results.length; j++) {
             const today = (new Date()).valueOf();
-            if (today > result[j].startTime && today < result[j].endTime) {
-              let q = `UPDATE user SET absent = '请假' where uid = '${results[i].uid}'`
+            if (today > results[j].startTime && today < results[j].endTime) {
+              let q = `UPDATE user SET absent = '请假' where uid = '${uid}'`
               db.query(q, (err, r) => { if (err) throw err })
             }
           }

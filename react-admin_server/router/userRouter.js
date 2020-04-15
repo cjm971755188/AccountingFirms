@@ -26,10 +26,11 @@ router.post('/login', (req, res) => {
               "name": results[0].name,
               "sex": results[0].sex,
               "phone": results[0].phone,
+              "did": results[0].did,
               "permission": results[0].permission,
               "absent": results[0].absent,
               "state": results[0].state,
-              "change": results[0].password === 123456 ? 1 : 0
+              "change": results[0].password === '123456' ? 1 : 0
             },
             msg: ''
           })

@@ -55,7 +55,8 @@ class UserLogin extends Component {
           {getFieldDecorator('password', {
             rules: [
               { required: true, message: '请输入密码!' },
-              { min: 6, message: '密码不能小于6个字符!' }
+              { min: 6, message: '密码不能小于6个字符!' },
+              { max: 16, message: '密码不能大于16个字符!' }
             ],
           })(
             <Input

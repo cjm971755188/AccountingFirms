@@ -5,16 +5,16 @@ const db = require('../config/db')
 router.post('/getBusinessList', (req, res) => {
   let params = req.body
   let sql = `SELECT * FROM business where state = 'unlock'`
-  if (params.uid !== '') {
+  if (params.uid && params.uid !== '') {
     sql = sql + ` and uid = '${params.uid}'`
   }
-  if (params.cid !== '') {
+  if (params.cid && params.cid !== '') {
     sql = sql + ` and cid = '${params.cid}'`
   }
-  if (params.btid !== 'all') {
+  if (params.btid && params.btid !== 'all') {
     sql = sql + ` and btid = '${params.btid}'`
   }
-  if (params.progress !== 'all') {
+  if (params.progress && params.progress !== 'all') {
     sql = sql + ` and progress = '${params.progress}'`
   }
   sql = sql + ` ORDER BY bid`

@@ -5,14 +5,20 @@ const db = require('../config/db')
 router.post('/getCustomerList', (req, res) => {
   let params = req.body
   let sql = `SELECT * FROM customer where state = 'unlock' and name LIKE '%${params.name}%'`
-  if (params.isAccount !== 'all') {
+  if (params.uid && params.uid !== '') {
+    sql = sql + ` and uid = '${params.uid}'`
+  }
+  if (params.isAccount && params.isAccount !== 'all') {
     sql = sql + ` and isAccount = '${params.isAccount}'`
   }
-  if (params.ctid !== 'all') {
+  if (params.ctid && params.ctid !== 'all') {
     sql = sql + ` and ctid = '${params.ctid}'`
   }
-  if (params.credit !== 'all') {
-    sql = sql + ` and credit = '${params.credit}'`
+  if (params.credit && params.credit !== 'all') {
+    sql = sql + ` and count > 0`
+  }
+  if (params.progress && params.progress !== 'all') {
+    sql = sql + ` and progress = '${params.progress}'`
   }
   sql = sql + ` ORDER BY cid`
   db.query(sql, (err, results) => {
@@ -76,9 +82,9 @@ router.post('/createCustomer', (req, res) => {
       const time = (new Date()).valueOf();
       let sql = ''
       if (params.isAccount === '是') {
-        sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', ${time}, '${params.ctid}', '${params.sid}', '${params.linkName}', '${params.linkPhone}', '${params.isAccount}', '${params.uid}', '正常', 0, 'unlock');`
+        sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', ${time}, '${params.ctid}', '${params.sid}', '${params.linkName}', '${params.linkPhone}', '${params.isAccount}', '${params.uid}', 0, 0, 0, '未完成', 'unlock');`
       } else {
-        sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', ${time}, '${params.ctid}', '${params.sid}', '${params.linkName}', '${params.linkPhone}', '${params.isAccount}', '', '正常', 0, 'unlock');`
+        sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', ${time}, '${params.ctid}', '${params.sid}', '${params.linkName}', '${params.linkPhone}', '${params.isAccount}', '', 0, 0, 0, '未完成', 'unlock');`
       }
       db.query(sql, (err, results) => {
         if (err) throw err;
@@ -136,6 +142,22 @@ router.post('/deleteCustomer', (req, res) => {
   })
 })
 
+router.post('/didComplete', (req, res) => {
+  let params = req.body
+  let sql = `SELECT * FROM customer WHERE cid = '${params.cid}'`
+  db.query(sql, (err, results) => {
+    if (err) throw err;
+    if (results.length === 0) res.send({ code: 200, data: {}, msg: '该客户公司不存在，不可结算酬金！' })
+    else {
+      let sql = `UPDATE customer SET progress = '已完成' WHERE cid = ${params.cid};`
+      db.query(sql, (err, results) => {
+        if (err) throw err;
+        res.send({ code: 200, data: {}, msg: '' })
+      })
+    }
+  })
+})
+
 router.post('/didPay', (req, res) => {
   let params = req.body
   let sql = `SELECT * FROM customer WHERE cid = '${params.cid}'`
@@ -143,7 +165,8 @@ router.post('/didPay', (req, res) => {
     if (err) throw err;
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该客户公司不存在，不可结算酬金！' })
     else {
-      let sql = `UPDATE customer SET credit = '正常', count = 0 WHERE cid = ${params.cid};`
+      const time = (new Date()).valueOf();
+      let sql = `UPDATE customer SET count = count - ${params.pay}, payTime = ${time} WHERE cid = ${params.cid};`
       db.query(sql, (err, results) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })

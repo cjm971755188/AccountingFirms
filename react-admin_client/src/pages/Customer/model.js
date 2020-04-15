@@ -1,4 +1,4 @@
-import { getCustomerList, createCustomer, editCustomer, deleteCustomer, didPay, getCustomerTypes, getSalarys, getUsers } from '../../services/customer';
+import { getCustomerList, createCustomer, editCustomer, deleteCustomer, didComplete, didPay, getCustomerTypes, getSalarys, getUsers } from '../../services/customer';
 
 export default {
   namespace: 'customer',
@@ -81,6 +81,14 @@ export default {
         return Promise.reject(e);
       }
     }, */
+    *didComplete({ payload }, { call, put }) {
+      try {
+        const res = yield call(didComplete, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
     *didPay({ payload }, { call, put }) {
       try {
         const res = yield call(didPay, payload);

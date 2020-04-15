@@ -8,8 +8,9 @@ import SearchCustomer from '../../components/searchCustomer'
 
 const { Option } = Select;
 
-@connect(({ business, loading }) => ({
+@connect(({ business, user, loading }) => ({
   business,
+  user,
   loading: loading.effects['business/fetchList'],
 }))
 class Business extends Component {
@@ -20,10 +21,11 @@ class Business extends Component {
 
   UNSAFE_componentWillMount () {
     const {
+      user: { user },
       business: {
         list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
-          uid = '',
+          uid = user.did === 1 ? '' : user.uid,
           cid = '',
           btid = 'all',
           progress = 'all'
@@ -39,7 +41,7 @@ class Business extends Component {
       dispatch({
         type: 'business/fetchList',
         payload: {
-          uid: '',
+          uid: user.did === 1 ? '' : user.uid,
           cid: '',
           btid: 'all',
           progress: 'all',
@@ -50,7 +52,7 @@ class Business extends Component {
       dispatch({
         type: 'business/save',
         payload: {
-          choosedUid: '',
+          choosedUid: user.did === 1 ? '' : user.uid,
           choosedCid: '',
           choosedBtid: 'all',
           choosedProgress: 'all'
@@ -61,7 +63,7 @@ class Business extends Component {
       dispatch({
         type: 'business/fetchList',
         payload: {
-          uid,
+          uid: user.did === 1 ? uid : user.uid,
           cid,
           btid,
           progress,
@@ -72,7 +74,7 @@ class Business extends Component {
       dispatch({
         type: 'business/save',
         payload: {
-          choosedUid: uid,
+          choosedUid: user.did === 1 ? uid : user.uid,
           choosedCid: cid,
           choosedBtid: btid,
           choosedProgress: progress
@@ -87,11 +89,12 @@ class Business extends Component {
   }
 
   query = () => {
+    const { user: { user } } = this.props
     const {
       business: {
         list: { pageSize = 10, pageNum = 1 },
         currentParameter: {
-          uid = '',
+          uid = user.did === 1 ? '' : user.uid,
           cid = '',
           btid = 'all',
           progress = 'all'
@@ -102,7 +105,7 @@ class Business extends Component {
     dispatch({
       type: 'business/fetchList',
       payload: {
-        uid,
+        uid: user.did === 1 ? uid : user.uid,
         cid,
         btid,
         progress,
@@ -113,7 +116,7 @@ class Business extends Component {
     dispatch({
       type: 'business/save',
       payload: {
-        choosedUid: uid,
+        choosedUid: user.did === 1 ? uid : user.uid,
         choosedCid: cid,
         choosedBtid: btid,
         choosedProgress: progress
@@ -123,11 +126,12 @@ class Business extends Component {
   };
 
   reset = () => {
+    const { user: { user } } = this.props
     const { dispatch } = this.props;
     dispatch({
       type: 'business/fetchList',
       payload: {
-        uid: '',
+        uid: user.did === 1 ? '' : user.uid,
         cid: '',
         btid: 'all',
         progress: 'all',
@@ -142,6 +146,7 @@ class Business extends Component {
   };
 
   getColumns = () => {
+    const { user: { user } } = this.props
     const { dispatch } = this.props
     const columns = [
       { title: '业务类型', dataIndex: 'btName', key: 'btName' },
@@ -149,6 +154,7 @@ class Business extends Component {
       { title: '公司名称', dataIndex: 'cName', key: 'cName' },
       { title: '联系人', dataIndex: 'linkName', key: 'linkName' },
       { title: '联系方式', dataIndex: 'linkPhone', key: 'linkPhone' },
+      { title: '酬金', dataIndex: 'salary', key: 'salary' },
       { 
         title: '开始时间', 
         render: record => {
@@ -167,7 +173,15 @@ class Business extends Component {
           return null
         }
       },
-      { title: '酬金', dataIndex: 'salary', key: 'salary' },
+      { 
+        title: '结算时间',
+        render: record => {
+          if (record.payTime) {
+            return <span>{moment(record.payTime).format('YYYY-MM-DD')}</span>
+          }
+          return null
+        }
+      },
       { title: '负责人', dataIndex: 'uName', key: 'uName' },
       { 
         title: '状态', 
@@ -225,7 +239,7 @@ class Business extends Component {
             >
               <span className='spanToa'>确认完成</span>
             </Popconfirm> : null}
-            {record.progress === '未结算' ? <Popconfirm
+            {record.progress === '未结算' && user.did === 1 ? <Popconfirm
               title="确认该业务已经结算完成么？"
               cancelText="取消"
               okText="确认"
@@ -281,13 +295,17 @@ class Business extends Component {
         )
       }
     ]
+    if (user.did === 3) {
+      columns.splice(9,1)
+    }
     return columns;
   };
 
   handleTableChange = (pagination, filters, sorter) => {
+    const { user: { user } } = this.props
     const {
       business: {
-        choosedUid = '',
+        choosedUid = user.did === 1 ? '' : user.uid,
         choosedCid = '',
         choosedBtid = 'all',
         choosedProgress = 'all'
@@ -295,7 +313,7 @@ class Business extends Component {
       dispatch,
     } = this.props;
     const payload = {
-      uid: choosedUid && (choosedUid.trim() || null),
+      uid: choosedUid && (user.did === 1 ? '' : user.uid),
       cid: choosedCid && (choosedCid.trim() || null),
       btid: choosedBtid,
       progress: choosedProgress,
@@ -340,6 +358,7 @@ class Business extends Component {
         },
         businessTypes: { businessTypes = [] }
       }, 
+      user: { user },
       loading,
       dispatch
     } = this.props;
@@ -351,10 +370,10 @@ class Business extends Component {
             <span>公司名称</span>
             <SearchCustomer sendValues={this.getCustomerValues} width='100%' cid={cid} />
           </Col>
-          <Col span={8}>
+          {user.did === 1 ? <Col span={8}>
             <span>负责员工</span>
             <SearchPerson sendValues={this.getPersonValues} width='100%' uid={uid} did='3' />
-          </Col>
+          </Col> : null}
           <Col span={8}>
             <span>业务类型</span>
             <Select 

@@ -17,6 +17,7 @@ app.use(createLoading());
 
 // 3. Model
 app.model(require('./pages/User_Home/model').default);
+app.model(require('./pages/Main/model').default);
 app.model(require('./pages/Person/model').default);
 app.model(require('./pages/Customer/model').default);
 app.model(require('./pages/Business/model').default);

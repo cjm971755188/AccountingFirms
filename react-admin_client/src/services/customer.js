@@ -8,6 +8,8 @@ export function editCustomer(params) { return request('/customer/editCustomer', 
 
 export function deleteCustomer(params) { return request('/customer/deleteCustomer', { method: 'POST', body: { ...params } }) }
 
+export function didComplete(params) { return request('/customer/didComplete', { method: 'POST', body: { ...params } }) }
+
 export function didPay(params) { return request('/customer/didPay', { method: 'POST', body: { ...params } }) }
 
 export function getCustomerTypes(params) { return request('/customer/getCustomerTypes', { method: 'POST', body: { ...params } }) }

@@ -1,14 +1,90 @@
 import React, { Component } from 'react';
-import { Card } from 'antd';
+import { Card, List, Pagination, Row, Col, Button, Popconfirm, message, Modal, InputNumber, Divider } from 'antd';
 import { connect } from 'dva';
 
-@connect(({ user, loading }) => ({
+import moment from 'moment';
+
+@connect(({ main, user, loading }) => ({
+  main,
   user,
 }))
 class Main extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.state = {
+      pageNum1: 1,
+      pageNum2: 1,
+      visible: false,
+      pay: 0,
+      item: {}
+    }
+  }
+
+  UNSAFE_componentWillMount () {
+    const { user: { user } } = this.props
+    const { pageNum1, pageNum2 } = this.state
+    if (user.did === 1) {
+      this.getCusotmerList(pageNum1)
+      this.getBusinessList(pageNum2)
+    } else if (user.did === 2) {
+      this.getList2(pageNum1)
+    } else {
+      this.getList3(pageNum2)
+    }
+  }
+  
+  getCusotmerList = (pageNum) => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'main/getCustomerList',
+      payload: {
+        name: '',
+        credit: '欠款',
+        pageNum,
+        pageSize: 8
+      },
+    });
+  }
+
+  getBusinessList = (pageNum) => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'main/getBusinessList',
+      payload: {
+        progress: '未结算',
+        pageNum,
+        pageSize: 8
+      },
+    });
+  }
+
+  getList2 = (pageNum) => {
+    const { user: { user } } = this.props
+    const { dispatch } = this.props
+    dispatch({
+      type: 'main/getCustomerList',
+      payload: {
+        uid: user.uid,
+        name: '',
+        progress: '未完成',
+        pageNum,
+        pageSize: 8
+      },
+    });
+  }
+
+  getList3 = (pageNum) => {
+    const { user: { user } } = this.props
+    const { dispatch } = this.props
+    dispatch({
+      type: 'main/getBusinessList',
+      payload: {
+        uid: user.uid,
+        progress: '办理中',
+        pageNum,
+        pageSize: 8
+      },
+    });
   }
 
   getDate = () => {
@@ -35,9 +111,36 @@ class Main extends Component {
     time = year + "年" + month + "月" + date + "日 " + week;
     return time
   }
+  
+  onChangeCustomer = page => {
+    console.log(page);
+    this.setState({ pageNum1: page })
+    this.getCusotmerList(page)
+  };
+
+  onChangeBusiness = page => {
+    console.log(page);
+    this.setState({ pageNum2: page })
+    this.getBusinessList(page)
+  };
+
+  title = () => {
+    const { user: { user } } = this.props
+    if (user.did === 1) { return '待结算业务' }
+    else if (user.did === 2) { return '待做账公司' }
+    else if (user.did === 3) { return '待办业务' }
+    else {}
+  }
 
   render () {
-    const { user: { user } } = this.props
+    const { 
+      user: { user }, 
+      main: { 
+        businessList, customerList
+      },
+      dispatch
+    } = this.props
+    const { pageNum1, pageNum2, visible } = this.state
     return (
       <>
         <div style={{ float: 'left', textAlign: 'left' }}>
@@ -47,8 +150,181 @@ class Main extends Component {
           <p style={{ fontSize: 20 }}>今天是{this.getDate()}, 祝你开心每一天</p>
         </div>
         <div style={{ clear: 'left', marginBottom: 10 }} />
-        <Card title="待办业务">
-        </Card>
+        {user.did !== 3 ? <Card title={user.did === 1 ? `待结算做账业务 (共${customerList.total}笔)` : `待办做账 (共${customerList.total}笔)`}>
+          <List
+            rowKey="bid"
+            grid={{ gutter: 16, column: 4 }}
+            dataSource={customerList.data}
+            renderItem={item => (
+              <List.Item>
+                <Card 
+                  title={item.name}
+                  extra={
+                    user.did === 1 ? <Button 
+                      type='primary' 
+                      icon={user.did === 1 ? 'pay-circle' : 'check'}
+                      onClick={() => {
+                        this.setState({ visible: true, pay: item.count, item: item })
+                      }}
+                    >
+                      结算
+                    </Button> : 
+                    <Popconfirm
+                      title="确认完成做账吗"
+                      onConfirm={() => {
+                        dispatch({
+                          type: 'customer/didComplete',
+                          payload: { cid: item.cid },
+                        })
+                          .then((res) => {
+                            if (res.msg === '') {
+                              message.success(`'${item.name}'完成做账成功`);
+                            } else {
+                              message.error(res.msg)
+                            }
+                            this.getList2(pageNum1);
+                          })
+                          .catch((e) => {
+                            message.error(e);
+                            this.getList2(pageNum1);
+                          });
+                      }}
+                      onCancel={() => {}}
+                      okText="确认"
+                      cancelText="取消"
+                    >
+                      <Button type='primary' icon={user.did === 1 ? 'pay-circle' : 'check'}>
+                        确认完成
+                      </Button>
+                    </Popconfirm>
+                  }
+                >
+                  <Row>
+                    <Col span={8}>结算类型：</Col>
+                    <Col span={16}>{item.ctName}-{item.salary}</Col>
+                  </Row>
+                  <Row>
+                    <Col span={8}>上次结算时间：</Col>
+                    <Col span={16}>{moment(item.payTime).format('YYYY-MM-DD HH:mm:ss')}</Col>
+                  </Row>
+                  <Row>
+                    <Col span={8}>欠款总金额：</Col>
+                    <Col span={16}>{item.count}</Col>
+                  </Row>
+                </Card>
+              </List.Item>
+            )}
+          />
+          <Pagination defaultCurrent={customerList.pageNum} total={customerList.total} pageSize={customerList.pageSize} style={{ float: 'right' }} onChange={this.onChangeCustomer} />
+        </Card> : null}
+        {user.did !== 2 ? <Card title={user.did === 1 ? `待结算其他业务 (共${businessList.total}笔)` : `待办业务 (共${businessList.total}笔)`} style={{ marginTop: 20 }}>
+          <List
+            rowKey="bid"
+            grid={{ gutter: 16, column: 4 }}
+            dataSource={businessList.data}
+            renderItem={item => (
+              <List.Item>
+                <Card 
+                  title={item.cName}
+                  extra={
+                    <Popconfirm
+                      title="确认结算吗?"
+                      onConfirm={() => {
+                        dispatch({
+                          type: 'main/didPayB',
+                          payload: { bid: item.bid },
+                        })
+                          .then((res) => {
+                            if (res.msg === '') {
+                              message.success(`'${item.cName}'的'${item.btName}'业务完成结算成功`);
+                            } else {
+                              message.error(res.msg)
+                            }
+                            this.getBusinessList(pageNum2);
+                          })
+                          .catch((e) => {
+                            message.error(e);
+                            this.getBusinessList(pageNum2);
+                          });
+                      }}
+                      onCancel={() => {}}
+                      okText="确认"
+                      cancelText="取消"
+                    >
+                      <Button type='primary' icon={user.did === 1 ? 'pay-circle' : 'check'}>{user.did === 1 ? '结算' : '确认完成'}</Button>
+                    </Popconfirm>
+                  }
+                >
+                  <Row>
+                    <Col span={8}>业务类型：</Col>
+                    <Col span={16}>{item.btName}</Col>
+                  </Row>
+                  <Row>
+                    <Col span={8}>联系人名：</Col>
+                    <Col span={16}>{item.linkName}</Col>
+                  </Row>
+                  <Row>
+                    <Col span={8}>联系人电话：</Col>
+                    <Col span={16}>{item.linkPhone}</Col>
+                  </Row>
+                </Card>
+              </List.Item>
+            )}
+          />
+          <Pagination defaultCurrent={businessList.pageNum} total={businessList.total} pageSize={businessList.pageSize} style={{ float: 'right' }} onChange={this.onChangeBusiness} />
+        </Card> : null}
+        <Modal
+          title="结算做账业务"
+          visible={visible}
+          onCancel={() => { this.setState({ visible: false, pay: 0 })}}
+          footer={[
+            <Button key="back" onClick={() => { this.setState({ visible: false, pay: 0 })}}>
+              取消
+            </Button>,
+            <Button 
+              key="submit" 
+              type="primary" 
+              onClick={() => {
+                dispatch({
+                  type: 'main/didPayC',
+                  payload: { 
+                    cid: this.state.item.cid,
+                    pay: this.state.pay,
+                  },
+                })
+                  .then((res) => {
+                    if (res.msg === '') {
+                      message.success(`'${this.state.item.name}'完成结算成功`);
+                    } else {
+                      message.error(res.msg)
+                    }
+                    this.getCusotmerList(pageNum1);
+                  })
+                  .catch((e) => {
+                    message.error(e);
+                    this.getCusotmerList(pageNum1);
+                  });
+                this.setState({ visible: false })
+              }}
+            >
+              确认结算
+            </Button>,
+          ]}
+        >
+          <Row style={{ height: 30 }}>
+            <Col span={8}>公司名称：</Col>
+            <Col span={16}>{this.state.item.name}</Col>
+          </Row>
+          <Row style={{ height: 30 }}>
+            <Col span={8}>共欠款金额：</Col>
+            <Col span={16}>{this.state.item.count}</Col>
+          </Row>
+          <Divider />
+          <Row style={{ height: 30, lineHeight: '30px' }}>
+            <Col span={8}>请输入本次结算的金额：</Col>
+            <Col span={16}><InputNumber style={{ width: '100%' }} min={0} max={this.state.item.count} value={this.state.pay} onChange={(value) => { this.setState({ pay: value })}} /></Col>
+          </Row>
+        </Modal>
       </>
     )
   }

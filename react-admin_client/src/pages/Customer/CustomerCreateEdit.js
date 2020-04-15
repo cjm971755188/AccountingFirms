@@ -6,8 +6,9 @@ import SearchPerson from '../../components/searchPerson'
 
 const { Option } = Select;
 
-@connect(({ customer, loading }) => ({
+@connect(({ customer, user, loading }) => ({
   customer,
+  user,
   loading: loading.effects['customer/create'] || loading.effects['customer/edit'],
 }))
 class CustomerCreateEdit extends Component {
@@ -38,7 +39,7 @@ class CustomerCreateEdit extends Component {
   }
 
   handleSubmit = e => {
-    const { dispatch } = this.props
+    const { user: { user }, dispatch } = this.props
     const { uid } = this.state
     const { flag, record } = this.props.history.location.state
     e.preventDefault();
@@ -48,7 +49,10 @@ class CustomerCreateEdit extends Component {
           type: flag === 'create' ? 'customer/create' : 'customer/edit',
           payload: {
             cid: flag === 'create' ? null : record.cid,
-            uid,
+            uid: user.did === 1 ? uid : user.uid,
+            sid: user.did === 1 ? values.sid : record.sid,
+            ctid: user.did === 1 ? values.ctid : record.ctid,
+            isAccount: user.did === 1 ? values.isAccount : '是',
             ...values
           }
         })
@@ -78,6 +82,7 @@ class CustomerCreateEdit extends Component {
     const { getFieldDecorator, resetFields } = this.props.form;
     const { flag, record } = this.props.history.location.state
     const {
+      user: { user },
       customer: { 
         customerTypes: { customerTypes = [] },
         salarys: { salarys = [] },
@@ -113,7 +118,7 @@ class CustomerCreateEdit extends Component {
               <Input placeholder="请输入客户公司名称" />,
             )}
           </Form.Item>
-          <Form.Item label='结算类型' {...formItemLayout}>
+          {user.did === 1 ? <><Form.Item label='结算类型' {...formItemLayout}>
             {getFieldDecorator('ctid', {
               initialValue: flag === 'create' ? '' : record.ctid,
               rules: [
@@ -160,7 +165,7 @@ class CustomerCreateEdit extends Component {
                 })}
               </Select>,
             )}
-          </Form.Item>
+          </Form.Item></> : null}
           <Form.Item label='联系人' {...formItemLayout}>
             {getFieldDecorator('linkName', {
               initialValue: flag === 'create' ? '' : record.linkName,
@@ -181,7 +186,7 @@ class CustomerCreateEdit extends Component {
               <Input placeholder="请输入客户联系电话" />,
             )}
           </Form.Item>
-          <Form.Item label='是否做账' {...formItemLayout}>
+          {user.did === 1 ? <Form.Item label='是否做账' {...formItemLayout}>
             {getFieldDecorator('isAccount', {
               initialValue: flag === 'create' ? '' : record.isAccount,
               rules: [
@@ -193,8 +198,8 @@ class CustomerCreateEdit extends Component {
                 <Radio value='否' onClick={() => { this.setState({ visible: false}) }}>否</Radio>
               </Radio.Group>,
             )}
-          </Form.Item>
-          {visible ? 
+          </Form.Item> : null}
+          {visible && user.did === 1 ? 
           <Form.Item>
             <Row>
               <Col span={2}>

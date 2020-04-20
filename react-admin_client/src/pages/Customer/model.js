@@ -11,13 +11,13 @@ export default {
     },
     currentParameter: {
       name: '',
-      isAccount: 'all',
+      progress: 'all',
       ctid: 'all',
       credit: 'all'
     },
     comfirmData: {
       choosedName: '',
-      choosedIsAccount: 'all',
+      choosedProgress: 'all',
       choosedCtid: 'all',
       choosedCredit: 'all'
     },
@@ -167,13 +167,13 @@ export default {
         },
         currentParameter: {
           name: '',
-          isAccount: 'all',
+          progress: 'all',
           ctid: 'all',
           credit: 'all'
         },
         comfirmData: {
           choosedName: '',
-          choosedIsAccount: 'all',
+          choosedProgress: 'all',
           choosedCtid: 'all',
           choosedCredit: 'all'
         },

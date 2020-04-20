@@ -437,7 +437,7 @@ class Absent extends Component {
             >
               <Button icon="delete" style={{ marginRight: 8 }}>清除所有已作废请假单</Button>
             </Popconfirm>
-            <Button
+            {/* <Button
               icon="plus"
               style={{ marginRight: 8 }}
               onClick={() => { 
@@ -448,7 +448,7 @@ class Absent extends Component {
               }}
             >
               请假（员工）
-            </Button>
+            </Button> */}
             <Button
               icon="plus"
               type="primary"
@@ -506,8 +506,12 @@ class Absent extends Component {
           <Descriptions title="历史流程">
             {timeLine && <Timeline>
               <Timeline.Item>{timeLine.name} 在 {timeLine.time} 提出了 请假申请</Timeline.Item>
-              {timeLine.checkName ? <Timeline.Item color={timeLine.checkResult === '通过' ? "green" : 'red'}>{timeLine.checkName} 在 {timeLine.checkTime} {timeLine.checkResult}了 请假申请</Timeline.Item> : null}
-              {timeLine.invalidName ? <Timeline.Item color="gray">{timeLine.invalidName} 在 {timeLine.invalidTime} 作废 了请假申请</Timeline.Item> : null}
+              {timeLine.checkName ? <Timeline.Item color={timeLine.checkResult === '通过' ? "green" : 'red'}>
+                {timeLine.checkName} 在 {timeLine.checkTime} {timeLine.checkResult}了 请假申请
+              </Timeline.Item> : null}
+              {timeLine.invalidName ? <Timeline.Item color="gray">
+                {timeLine.invalidName} 在 {timeLine.invalidTime} 作废 了请假申请
+              </Timeline.Item> : null}
             </Timeline>}
           </Descriptions>
         </Modal>

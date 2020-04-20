@@ -31,8 +31,7 @@ export default {
         sum: 0
       },
     },
-    departments: [],
-    permissions: []
+    departments: []
   },
 
   effects: {

@@ -52,7 +52,7 @@ class CustomerCreateEdit extends Component {
             uid: user.did === 1 ? uid : user.uid,
             sid: user.did === 1 ? values.sid : record.sid,
             ctid: user.did === 1 ? values.ctid : record.ctid,
-            isAccount: user.did === 1 ? values.isAccount : '是',
+            isAccount: '是',
             ...values
           }
         })
@@ -186,7 +186,7 @@ class CustomerCreateEdit extends Component {
               <Input placeholder="请输入客户联系电话" />,
             )}
           </Form.Item>
-          {user.did === 1 ? <Form.Item label='是否做账' {...formItemLayout}>
+          {/* {user.did === 1 ? <Form.Item label='是否做账' {...formItemLayout}>
             {getFieldDecorator('isAccount', {
               initialValue: flag === 'create' ? '' : record.isAccount,
               rules: [
@@ -198,8 +198,8 @@ class CustomerCreateEdit extends Component {
                 <Radio value='否' onClick={() => { this.setState({ visible: false}) }}>否</Radio>
               </Radio.Group>,
             )}
-          </Form.Item> : null}
-          {visible && user.did === 1 ? 
+          </Form.Item> : null} */}
+          {user.did === 1 ? 
           <Form.Item>
             <Row>
               <Col span={2}>

@@ -231,10 +231,12 @@ class Person extends Component {
   handleTableChange = (pagination, filters, sorter) => {
     const {
       person: {
-        choosedUsername = '',
-        choosedName = '',
-        choosedPid = 'all',
-        choosedAbsent = 'all'
+        comfirmData: {
+          choosedUsername = '',
+          choosedName = '',
+          choosedPid = 'all',
+          choosedAbsent = 'all'
+        }
       },
       dispatch,
     } = this.props;
@@ -346,8 +348,8 @@ class Person extends Component {
               value={absent}
             >
               <Option value="all">全部</Option>
-              <Option value={1}>在班</Option>
-              <Option value={2}>请假</Option>
+              <Option value="在班">在班</Option>
+              <Option value="请假">请假</Option>
             </Select>
           </Col>
           <Col span={8}>

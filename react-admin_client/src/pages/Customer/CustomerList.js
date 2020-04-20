@@ -32,7 +32,7 @@ class Customer extends Component {
         currentParameter: {
           uid = user.uid === 1 ? '' : user.uid,
           name = '',
-          isAccount = 'all',
+          progress = 'all',
           ctid = 'all',
           credit = 'all'
         },
@@ -49,7 +49,7 @@ class Customer extends Component {
         payload: {
           uid: user.uid === 1 ? '' : user.uid,
           name: '',
-          isAccount: 'all',
+          progress: 'all',
           ctid: 'all',
           credit: 'all',
           pageNum: 1,
@@ -60,7 +60,7 @@ class Customer extends Component {
         type: 'customer/save',
         payload: {
           choosedName: '',
-          choosedIsAccount: 'all',
+          choosedProgress: 'all',
           choosedCtid: 'all',
           choosedCredit: 'all'
         },
@@ -72,7 +72,7 @@ class Customer extends Component {
         payload: {
           uid: user.uid === 1 ? uid : user.uid,
           name,
-          isAccount,
+          progress,
           ctid,
           credit,
           pageNum,
@@ -83,7 +83,7 @@ class Customer extends Component {
         type: 'customer/save',
         payload: {
           choosedName: name,
-          choosedIsAccount: isAccount,
+          choosedProgress: progress,
           choosedCtid: ctid,
           choosedCredit: credit
         },
@@ -104,7 +104,7 @@ class Customer extends Component {
         currentParameter: {
           uid = user.uid === 1 ? '' : user.uid,
           name = '',
-          isAccount = 'all',
+          progress = 'all',
           ctid = 'all',
           credit = 'all'
         },
@@ -116,7 +116,7 @@ class Customer extends Component {
       payload: {
         uid: user.uid === 1 ? uid : user.uid,
         name,
-        isAccount,
+        progress,
         ctid,
         credit,
         pageNum,
@@ -127,7 +127,7 @@ class Customer extends Component {
       type: 'customer/save',
       payload: {
         choosedName: name,
-        choosedIsAccount: isAccount,
+        choosedProgress: progress,
         choosedCtid: ctid,
         choosedCredit: credit
       },
@@ -143,7 +143,7 @@ class Customer extends Component {
       payload: {
         uid: user.uid === 1 ? '' : user.uid,
         name: '',
-        isAccount: 'all',
+        progress: 'all',
         ctid: 'all',
         credit: 'all',
         pageNum: 1,
@@ -166,7 +166,6 @@ class Customer extends Component {
       { title: '结算酬金', dataIndex: 'salary', key: 'salary' },
       { title: '联系人', dataIndex: 'linkName', key: 'linkName' },
       { title: '联系电话', dataIndex: 'linkPhone', key: 'linkPhone' },
-      { title: '是否做账', dataIndex: 'isAccount', key: 'isAccount' },
       { title: '负责会计', dataIndex: 'uName', key: 'uName' },
       { 
         title: '最近结算时间',
@@ -322,7 +321,7 @@ class Customer extends Component {
       user: { user },
       customer: {
         choosedName = '',
-        choosedIsAccount = 'all',
+        choosedProgress = 'all',
         choosedCtid = 'all',
         choosedCredit = 'all'
       },
@@ -331,7 +330,7 @@ class Customer extends Component {
     const payload = {
       uid: user.uid === 1 ? '' : user.uid,
       name: choosedName && (choosedName.trim() || null),
-      isAccount: choosedIsAccount,
+      progress: choosedProgress,
       ctid: choosedCtid,
       credit: choosedCredit,
       pageNum: pagination.current,
@@ -354,7 +353,7 @@ class Customer extends Component {
           total 
         },
         currentParameter: {
-          name, isAccount, ctid, credit
+          name, progress, ctid, credit
         },
         customerTypes: { customerTypes = [] },
       }, 
@@ -381,25 +380,7 @@ class Customer extends Component {
               onPressEnter={() => { this.query() }}
             />
           </Col>
-          {user.did === 1 ? <Col span={8}>
-            <span>是否做账</span>
-            <Select 
-              defaultValue="all" 
-              style={{ width: '100%' }}
-              onChange={value => {
-                dispatch({
-                  type: 'customer/save',
-                  payload: { isAccount: value },
-                  index: 'currentParameter',
-                });
-              }}
-              value={isAccount}
-            >
-              <Option value="all">全部</Option>
-              <Option value='是'>是</Option>
-              <Option value='否'>否</Option>
-            </Select>
-          </Col> : null}
+          
           <Col span={8}>
             <span>结算类型</span>
             <Select 
@@ -424,6 +405,26 @@ class Customer extends Component {
               {customerTypes && customerTypes.map((value, key) => {
                 return <Option value={value.ctid} key={value.ctid}>{value.name}</Option>
               })}
+            </Select>
+          </Col>
+          <Col span={8}>
+            <span>做账状态</span>
+            <Select 
+              defaultValue="all" 
+              style={{ width: '100%' }}
+              onChange={value => {
+                dispatch({
+                  type: 'customer/save',
+                  payload: { progress: value },
+                  index: 'currentParameter',
+                });
+              }}
+              value={progress}
+            >
+              <Option value="all">全部</Option>
+              <Option value='已完成'>已完成</Option>
+              <Option value='未完成'>未完成</Option>
+              <Option value='已超时'>已超时</Option>
             </Select>
           </Col>
           <Col span={8}>

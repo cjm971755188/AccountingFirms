@@ -5,7 +5,13 @@ const moment = require('moment');
 
 router.post('/getPersonList', (req, res) => {
   let params = req.body
-  let sql = `SELECT * FROM user where state = 'unlock' and did != '0' and did != '1' and username LIKE '%${params.username}%' and name LIKE '%${params.name}%'`
+  let sql = `SELECT * FROM user where state = 'unlock' and did != '0' and did != '1'`
+  if (params.username !== '') {
+    sql = sql + ` and username LIKE '%${params.username}%'`
+  }
+  if (params.name !== '') {
+    sql = sql + ` and name LIKE '%${params.name}%'`
+  }
   if (params.did !== 'all') {
     sql = sql + ` and did = '${params.did}'`
   }

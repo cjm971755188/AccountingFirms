@@ -5,7 +5,7 @@ const db = require('../config/db')
 router.post('/getBusinessList', (req, res) => {
   let params = req.body
   let sql = `SELECT * FROM business where state = 'unlock'`
-  if (params.uid && params.uid !== '') {
+  if (params.uid && params.uid !== '' && params.uid !== 1) {
     sql = sql + ` and uid = '${params.uid}'`
   }
   if (params.cid && params.cid !== '') {
@@ -129,11 +129,19 @@ router.post('/didPay', (req, res) => {
     if (err) throw err;
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该业务不存在，不可结算酬金！' })
     else {
-      const time = (new Date()).valueOf();
+      let time = (new Date()).valueOf();
       let sql = `UPDATE business SET progress = '已完成', payTime = ${time} WHERE bid = ${params.bid};`
       db.query(sql, (err, results) => {
         if (err) throw err;
-        res.send({ code: 200, data: {}, msg: '' })
+        let sql = `UPDATE customer SET bPay = bPay + ${params.salary}, payTime = ${time} WHERE cid = ${params.cid};`
+        db.query(sql, (err, results) => {
+          if (err) throw err;
+          let sql = `UPDATE user SET pay = pay + ${params.salary} WHERE uid = ${params.uid};`
+          db.query(sql, (err, results) => {
+            if (err) throw err;
+            res.send({ code: 200, data: {}, msg: '' })
+          })
+        })
       })
     }
   })

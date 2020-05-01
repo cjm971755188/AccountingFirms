@@ -64,11 +64,11 @@ router.post('/create', (req, res) => {
             if (err) throw err;
             let sql = ''
             if (params.pType === '默认') {
-              sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.did}', '${params.pType}', '${results[0].permission}', '在班', 'unlock')`
+              sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.did}', '${params.pType}', '${results[0].permission}', '在班', 0, 'unlock')`
             } else if (params.permission === results[0].permission) {
-              sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.did}', '默认', '${params.permission}', '在班', 'unlock')`
+              sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.did}', '默认', '${params.permission}', '在班', 0, 'unlock')`
             } else {
-              sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.did}', '${params.pType}', '${params.permission}', '在班', 'unlock')`
+              sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.did}', '${params.pType}', '${params.permission}', '在班', 0, 'unlock')`
             }
             db.query(sql, (err, results) => {
               if (err) throw err;
@@ -146,7 +146,7 @@ router.post('/lockOrUnlock', (req, res) => {
 })
 
 router.post('/getDepartments', (req, res) => {
-  let sql = `SELECT * FROM department`
+  let sql = `SELECT * FROM department WHERE did != 0`
   db.query(sql, (err, results) => {
     if (err) throw err;
     res.send({ code: 200, data: { departments: results }, msg: '' })

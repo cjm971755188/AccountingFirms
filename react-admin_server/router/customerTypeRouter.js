@@ -31,7 +31,7 @@ router.post('/createCustomerType', (req, res) => {
     if (err) throw err;
     if (results.length !== 0) res.send({ code: 200, data: {}, msg: '该结算类型已存在，不可重复添加！' })
     else {
-      let sql = `INSERT INTO customertype VALUES(null, '${params.name}', '${params.description}');`
+      let sql = `INSERT INTO customertype VALUES(null, '${params.name}', '${params.count}', '${params.description}');`
       db.query(sql, (err, results) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })
@@ -47,7 +47,7 @@ router.post('/editCustomerType', (req, res) => {
     if (err) throw err;
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该结算类型名称不存在，不可修改！' })
     else {
-      let sql = `UPDATE customertype SET name = '${params.name}', description = '${params.description}' where ctid = '${params.ctid}'`
+      let sql = `UPDATE customertype SET name = '${params.name}', description = '${params.description}', count = '${params.count}' where ctid = '${params.ctid}'`
       db.query(sql, (err, results) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })

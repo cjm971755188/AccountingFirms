@@ -168,10 +168,10 @@ class Customer extends Component {
       { title: '联系电话', dataIndex: 'linkPhone', key: 'linkPhone' },
       { title: '负责会计', dataIndex: 'uName', key: 'uName' },
       { 
-        title: '最近结算时间',
+        title: '最近做账时间',
         render: record => {
-          if (record.payTime) {
-            return <span>{moment(record.payTime).format('YYYY-MM-DD')}</span>
+          if (record.didTime) {
+            return <span>{moment(record.didTime).format('YYYY-MM-DD')}</span>
           }
           return null
         }
@@ -204,9 +204,18 @@ class Customer extends Component {
         }
       },
       { 
+        title: '最近结算时间',
+        render: record => {
+          if (record.payTime) {
+            return <span>{moment(record.payTime).format('YYYY-MM-DD')}</span>
+          }
+          return null
+        }
+      },
+      { 
         title: '信用状态', 
         render: record => {
-          if (record.count === 0) {
+          if (record.debt === 0) {
             return (
               <Row>
                 <Icon type="smile" theme="twoTone" twoToneColor="#43CD80" />
@@ -217,7 +226,7 @@ class Customer extends Component {
           return (
             <Row>
               <Icon type="frown" theme="twoTone" twoToneColor="#CD3333" />
-              <span style={{ marginLeft: '8px' }}>欠款{record.count}元</span>
+              <span style={{ marginLeft: '8px' }}>欠款{record.debt}元</span>
             </Row>
           )
         }
@@ -277,10 +286,10 @@ class Customer extends Component {
             >
               <span className='spanToa'>做账完成</span>
             </Popconfirm></> : null}
-            {record.count > 0 && user.did === 1 ? <>
+            {record.debt > 0 && user.did === 1 ? <>
             <Divider type="vertical" />
-            <span className='spanToa' onClick={() => { this.setState({ visible: true, item: record, pay: record.count }) }}>确认结算</span></> : null}
-            {user.did === 1 && record.progress === '已完成' && record.count === 0 ?  <><Divider type="vertical" />
+            <span className='spanToa' onClick={() => { this.setState({ visible: true, item: record, pay: record.debt }) }}>确认结算</span></> : null}
+            {user.did === 1 && record.progress === '已完成' && record.debt === 0 ?  <><Divider type="vertical" />
             <Popconfirm
               title="确认将该客户公司删除么？"
               cancelText="取消"
@@ -498,11 +507,12 @@ class Customer extends Component {
                   payload: { 
                     cid: this.state.item.cid,
                     pay: this.state.pay,
+                    uid: this.state.item.uid
                   },
                 })
                   .then((res) => {
                     if (res.msg === '') {
-                      message.success(`'${this.state.item.name}'完成做账成功`);
+                      message.success(`'${this.state.item.name}'完成结算成功`);
                     } else {
                       message.error(res.msg)
                     }
@@ -525,12 +535,12 @@ class Customer extends Component {
           </Row>
           <Row style={{ height: 30 }}>
             <Col span={8}>共欠款金额：</Col>
-            <Col span={16}>{this.state.item.count}</Col>
+            <Col span={16}>{this.state.item.debt}</Col>
           </Row>
           <Divider />
           <Row style={{ height: 30, lineHeight: '30px' }}>
             <Col span={8}>请输入本次结算的金额：</Col>
-            <Col span={16}><InputNumber style={{ width: '100%' }} min={0} max={this.state.item.count} value={this.state.pay} onChange={(value) => { this.setState({ pay: value })}} /></Col>
+            <Col span={16}><InputNumber style={{ width: '100%' }} min={0} max={this.state.item.debt} value={this.state.pay} onChange={(value) => { this.setState({ pay: value })}} /></Col>
           </Row>
         </Modal>
       </Card>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Form, Input, Button, message } from 'antd';
+import { Card, Form, Input, Button, message, InputNumber } from 'antd';
 import { connect } from 'dva';
 
 const { TextArea } = Input;
@@ -76,6 +76,16 @@ class CustomerTypeCreateEdit extends Component {
                 maxLength={100}
                 autoSize={{ minRows: 4, maxRows: 10 }}
               />
+            )}
+          </Form.Item>
+          <Form.Item label='结算月数' {...formItemLayout}>
+            {getFieldDecorator('count', {
+              initialValue: flag === 'create' ? '' : record.count,
+              rules: [
+                { required: true, message: '月数不能为空!' },
+              ],
+            })(
+              <InputNumber min={1} />
             )}
           </Form.Item>
           <Form.Item>

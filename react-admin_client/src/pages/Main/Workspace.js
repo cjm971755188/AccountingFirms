@@ -148,7 +148,21 @@ class Main extends Component {
             {user.name}，你好！
           </p>
           <p style={{ fontSize: 20 }}>今天是{this.getDate()}, 祝你开心每一天</p>
+          
         </div>
+        {user.did !== 1 ? <Button
+          icon="plus"
+          type="primary"
+          style={{ float: 'right' }}
+          onClick={() => { 
+            this.props.history.push({
+              pathname: '/home/absent/create',
+              state: { flag: 2 }
+            })
+          }}
+        >
+          申请请假
+        </Button> : null}
         <div style={{ clear: 'left', marginBottom: 10 }} />
         {user.did !== 3 ? <Card title={user.did === 1 ? `待结算做账业务 (共${customerList.total}笔)` : `待办做账 (共${customerList.total}笔)`}>
           <List
@@ -164,7 +178,7 @@ class Main extends Component {
                       type='primary' 
                       icon={user.did === 1 ? 'pay-circle' : 'check'}
                       onClick={() => {
-                        this.setState({ visible: true, pay: item.count, item: item })
+                        this.setState({ visible: true, pay: item.debt, item: item })
                       }}
                     >
                       结算
@@ -209,7 +223,7 @@ class Main extends Component {
                   </Row>
                   <Row>
                     <Col span={8}>欠款总金额：</Col>
-                    <Col span={16}>{item.count}</Col>
+                    <Col span={16}>{item.debt}</Col>
                   </Row>
                 </Card>
               </List.Item>
@@ -232,7 +246,7 @@ class Main extends Component {
                       onConfirm={() => {
                         dispatch({
                           type: 'main/didPayB',
-                          payload: { bid: item.bid },
+                          payload: { bid: item.bid, cid: item.cid, salary: item.salary, uid: item.uid },
                         })
                           .then((res) => {
                             if (res.msg === '') {
@@ -290,6 +304,7 @@ class Main extends Component {
                   payload: { 
                     cid: this.state.item.cid,
                     pay: this.state.pay,
+                    uid: this.state.item.uid
                   },
                 })
                   .then((res) => {
@@ -317,12 +332,12 @@ class Main extends Component {
           </Row>
           <Row style={{ height: 30 }}>
             <Col span={8}>共欠款金额：</Col>
-            <Col span={16}>{this.state.item.count}</Col>
+            <Col span={16}>{this.state.item.debt}</Col>
           </Row>
           <Divider />
           <Row style={{ height: 30, lineHeight: '30px' }}>
             <Col span={8}>请输入本次结算的金额：</Col>
-            <Col span={16}><InputNumber style={{ width: '100%' }} min={0} max={this.state.item.count} value={this.state.pay} onChange={(value) => { this.setState({ pay: value })}} /></Col>
+            <Col span={16}><InputNumber style={{ width: '100%' }} min={0} max={this.state.item.debt} value={this.state.pay} onChange={(value) => { this.setState({ pay: value })}} /></Col>
           </Row>
         </Modal>
       </>

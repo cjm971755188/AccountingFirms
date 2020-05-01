@@ -15,7 +15,7 @@ router.post('/getCustomerList', (req, res) => {
     sql = sql + ` and ctid = '${params.ctid}'`
   }
   if (params.credit && params.credit !== 'all') {
-    sql = sql + ` and count > 0`
+    sql = sql + ` and debt > 0`
   }
   if (params.progress && params.progress !== 'all') {
     sql = sql + ` and progress = '${params.progress}'`
@@ -80,7 +80,7 @@ router.post('/createCustomer', (req, res) => {
     if (results.length !== 0) res.send({ code: 200, data: {}, msg: '该客户公司已存在，不可重复添加！' })
     else {
       const time = (new Date()).valueOf();
-      let sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', ${time}, '${params.ctid}', '${params.sid}', '${params.linkName}', '${params.linkPhone}', '${params.uid}', 0, 0, 0, '未完成', 'unlock');`
+      let sql = `INSERT INTO customer VALUES(null, '${params.ID}', '${params.name}', ${time}, '${params.ctid}', '${params.sid}', '${params.linkName}', '${params.linkPhone}', '${params.uid}', 0, ${time}, 0, 0, '未完成', 0, 0, 0, 'unlock');`
       db.query(sql, (err, results) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })
@@ -101,12 +101,7 @@ router.post('/editCustomer', (req, res) => {
         if (err) throw err;
         if (results.length === 0) res.send({ code: 200, data: {}, msg: '该客户公司不存在，不可修改信息！' })
         else {
-          let sql = ''
-          if (params.progress === '是') {
-            sql = `UPDATE customer SET ID = '${params.ID}', name = '${params.name}', ctid = '${params.ctid}', sid = '${params.sid}', linkName = '${params.linkName}', linkPhone = '${params.linkPhone}', progress = '${params.progress}', uid = '${params.uid}' WHERE cid = ${params.cid};`
-          } else {
-            sql = `UPDATE customer SET ID = '${params.ID}', name = '${params.name}', ctid = '${params.ctid}', sid = '${params.sid}', linkName = '${params.linkName}', linkPhone = '${params.linkPhone}', progress = '${params.progress}', uid = '' WHERE cid = ${params.cid};`
-          }
+          let sql = `UPDATE customer SET ID = '${params.ID}', name = '${params.name}', ctid = '${params.ctid}', sid = '${params.sid}', linkName = '${params.linkName}', linkPhone = '${params.linkPhone}', uid = '${params.uid}' WHERE cid = ${params.cid};`
           db.query(sql, (err, results) => {
             if (err) throw err;
             res.send({ code: 200, data: {}, msg: '' })
@@ -140,7 +135,8 @@ router.post('/didComplete', (req, res) => {
     if (err) throw err;
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该客户公司不存在，不可结算酬金！' })
     else {
-      let sql = `UPDATE customer SET progress = '已完成' WHERE cid = ${params.cid};`
+      const time = (new Date()).valueOf();
+      let sql = `UPDATE customer SET progress = '已完成', didTime = ${time} WHERE cid = ${params.cid};`
       db.query(sql, (err, results) => {
         if (err) throw err;
         res.send({ code: 200, data: {}, msg: '' })
@@ -157,10 +153,14 @@ router.post('/didPay', (req, res) => {
     if (results.length === 0) res.send({ code: 200, data: {}, msg: '该客户公司不存在，不可结算酬金！' })
     else {
       const time = (new Date()).valueOf();
-      let sql = `UPDATE customer SET count = count - ${params.pay}, payTime = ${time} WHERE cid = ${params.cid};`
+      let sql = `UPDATE customer SET debt = debt - ${params.pay}, cPay = cPay + ${params.pay}, payTime = ${time} WHERE cid = ${params.cid};`
       db.query(sql, (err, results) => {
         if (err) throw err;
-        res.send({ code: 200, data: {}, msg: '' })
+        let sql = `UPDATE user SET pay = pay + ${params.pay} WHERE uid = ${params.uid};`
+        db.query(sql, (err, results) => {
+          if (err) throw err;
+          res.send({ code: 200, data: {}, msg: '' })
+        })
       })
     }
   })

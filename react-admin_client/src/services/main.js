@@ -7,3 +7,5 @@ export function getCustomerList(params) { return request('/customer/getCustomerL
 export function didPayB(params) { return request('/business/didPay', { method: 'POST', body: { ...params } }) }
 
 export function didPayC(params) { return request('/customer/didPay', { method: 'POST', body: { ...params } }) }
+
+export function getAnalysis(params) { return request('/person/getAnalysis', { method: 'POST', body: { ...params } }) }

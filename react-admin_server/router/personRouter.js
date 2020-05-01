@@ -63,7 +63,7 @@ router.post('/createPerson', (req, res) => {
         db.query(sql, (err, results) => {
           const username = 'JMG' + (id/Math.pow(10,5)).toFixed(5).substr(2)
           const startTime = (new Date()).valueOf();
-          let sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.did}', '默认', '${results[0].permission}', '在班', 'unlock');`
+          let sql = `INSERT INTO user VALUES(null, '${username}', '123456', '${params.name}', '${params.sex}', '${params.phone}', '${startTime}', '${params.did}', '默认', '${results[0].permission}', '在班', 0, 'unlock');`
           db.query(sql, (err, results) => {
             if (err) throw err;
             res.send({ code: 200, data: { username }, msg: '' })
@@ -354,6 +354,87 @@ router.post('/getDetail', (req, res) => {
         }
       })
     }
+  })
+})
+
+router.post('/getAnalysis', (req, res) => {
+  let analysis = {
+    pCount: { before: 0, now: 0 },
+    cCount: { before: 0, now: 0 },
+    bCount: { before: 0, now: 0 },
+    sCount: { before: 0, now: 0 },
+    option: {},
+    AList: [],
+    BList: [],
+    OList: []
+  }
+  let time = moment(`${(new Date()).getFullYear()}-01-01`).valueOf();
+  let sql = `SELECT * FROM user WHERE state = 'unlock' and did != 1`
+  db.query(sql, (err, results) => {
+    if (err) throw err;
+    analysis.pCount.now = results.length
+    let sql = `SELECT * FROM user WHERE state = 'unlock' and did != 1 and startTime > ${time}`
+    db.query(sql, (err, results) => {
+      if (err) throw err;
+      analysis.pCount.before = analysis.pCount.now - results.length
+      let sql = `SELECT * FROM customer WHERE state = 'unlock'`
+      db.query(sql, (err, results) => {
+        if (err) throw err;
+        analysis.cCount.now = results.length
+        let sql = `SELECT * FROM customer WHERE state = 'unlock' and time > ${time}`
+        db.query(sql, (err, results) => {
+          if (err) throw err;
+          analysis.cCount.before = analysis.cCount.now - results.length
+
+          for (let i = 0; i < results.length; i++) {
+            analysis.sCount.now = analysis.sCount.now + results[i].bPay + results[i].cPay
+          }
+          let sql = `SELECT * FROM business WHERE state = 'unlock' and progress = '已完成'`
+          db.query(sql, (err, results) => {
+            if (err) throw err;
+            analysis.bCount.now = results.length
+            let sql = `SELECT user.name, COUNT(customer.cid) AS count, customer.cPay
+                      FROM user, customer
+                      WHERE user.state = 'unlock' 
+                      and user.did = 2
+                      and customer.state = 'unlock' 
+                      and user.uid = customer.uid 
+                      GROUP BY user.uid
+                      ORDER BY customer.cPay DESC`
+            db.query(sql, (err, results) => {
+              if (err) throw err;
+              analysis.AList = results.slice(0,4)
+              let sql = `SELECT user.name, COUNT(business.bid) AS count, user.pay
+                        FROM user, business
+                        WHERE user.state = 'unlock' 
+                        and user.did = 3
+                        and business.state = 'unlock' 
+                        and user.uid = business.uid 
+                        GROUP BY user.uid
+                        ORDER BY user.pay DESC`
+              db.query(sql, (err, results) => {
+                if (err) throw err;
+                analysis.BList = results.slice(0,4)
+                let sql = `SELECT user.name, SUM(customer.overCount) AS count
+                          FROM user, customer
+                          WHERE user.state = 'unlock' 
+                          and user.did = 2
+                          and customer.state = 'unlock' 
+                          and user.uid = customer.uid 
+                          GROUP BY user.uid
+                          ORDER BY SUM(customer.overCount) DESC`
+                db.query(sql, (err, results) => {
+                  if (err) throw err;
+                  analysis.OList = results.slice(0,4)
+
+                  res.send({ code: 200, data: { ...analysis }, msg: '' })
+                })
+              })
+            })
+          })
+        })
+      })
+    })
   })
 })
 

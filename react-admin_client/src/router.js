@@ -2,7 +2,8 @@ import User from './pages/User_Home/User';
 import UserLogin from './pages/User_Home/UserLogin';
 
 import Home from './pages/User_Home/Home';
-import Main from './pages/Main/Main';
+import Workspace from './pages/Main/Workspace';
+import Analysis from './pages/Main/Analysis';
 
 import PersonList from './pages/Person/PersonList';
 import PersonCreate from './pages/Person/PersonCreateEdit';
@@ -60,9 +61,20 @@ export default [
     exact: true,
     routes: [
       { 
-        path: '/main', 
-        component: Main, 
+        path: '/main',
         exact: true,
+        children: [
+          { 
+            path: '/workspace', 
+            component: Workspace, 
+            exact: true,
+          },
+          { 
+            path: '/analysis', 
+            component: Analysis, 
+            exact: true,
+          },
+        ]
       },
       { 
         path: '/person', 
@@ -87,7 +99,7 @@ export default [
             path: '/detail', 
             component: PersonDetail, 
             exact: true,
-          },
+          }
         ]
       },
       { 

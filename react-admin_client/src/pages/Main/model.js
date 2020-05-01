@@ -1,4 +1,4 @@
-import { getBusinessList, getCustomerList, didPayB, didPayC } from '../../services/main';
+import { getBusinessList, getCustomerList, didPayB, didPayC, getAnalysis } from '../../services/main';
 
 export default {
   namespace: 'main',
@@ -15,6 +15,16 @@ export default {
       pageSize: 8,
       total: 0
     },
+    analysis: {
+      pCount: {},
+      cCount: {},
+      bCount: {},
+      sCount: {},
+      aOption: {},
+      AList: [],
+      BList: [],
+      OList: []
+    } 
   },
 
   effects: {
@@ -55,6 +65,19 @@ export default {
     *didPayC({ payload }, { call, put }) {
       try {
         const res = yield call(didPayC, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *getAnalysis({ payload }, { call, put }) {
+      try {
+        const res = yield call(getAnalysis, payload);
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'analysis'
+        });
         return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);

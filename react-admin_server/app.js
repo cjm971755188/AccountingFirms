@@ -1,4 +1,5 @@
 const express = require('express');
+var schedule = require("node-schedule");  
 const app = express();
 
 // 监听端口
@@ -10,32 +11,85 @@ app.listen('3000', () => {
 const db = require('./config/db')
 db.connect((err) => {
   if (err) throw err;
-  console.log('Mysql connected')
-  let sql = `SELECT * FROM user where state = 'unlock'`
-  sql = sql + ` ORDER BY uid`
-  db.query(sql, (err, results) => {
-    if (err) throw err;
-    for (let i = 0; i < results.length; i++) {
-      let uid = results[i].uid
-      let s = `SELECT * FROM absent where progress = '已通过' and uid = '${results[i].uid}'`
-      db.query(s, (err, results) => {
+  function scheduleCronstyle1(){
+    schedule.scheduleJob('0 0 0 * * *', function(){
+      console.log('scheduleCronstyle1:' + new Date());
+      let sql = `SELECT * FROM user where state = 'unlock' ORDER BY uid`
+      db.query(sql, (err, results) => {
         if (err) throw err;
-        if (results.length === 0) {
-          let q = `UPDATE user SET absent = '在班' where uid = '${uid}'`
-          db.query(q, (err, r) => { if (err) throw err })
-        } else {
-          for (let j = 0; j < results.length; j++) {
-            const today = (new Date()).valueOf();
-            if (today > results[j].startTime && today < results[j].endTime) {
-              let q = `UPDATE user SET absent = '请假' where uid = '${uid}'`
+        for (let i = 0; i < results.length; i++) {
+          let uid = results[i].uid
+          let s = `SELECT * FROM absent where progress = '已通过' and uid = '${results[i].uid}'`
+          db.query(s, (err, results) => {
+            if (err) throw err;
+            if (results.length === 0) {
+              let q = `UPDATE user SET absent = '在班' where uid = '${uid}'`
               db.query(q, (err, r) => { if (err) throw err })
+            } else {
+              for (let j = 0; j < results.length; j++) {
+                const today = (new Date()).valueOf();
+                if (today > results[j].startTime && today < results[j].endTime) {
+                  let q = `UPDATE user SET absent = '请假' where uid = '${uid}'`
+                  db.query(q, (err, r) => { 
+                    if (err) throw err; 
+                  })
+                }
+              }
             }
-          }
+          })
         }
       })
-    }
-    console.log('当天请假情况已更新')
-  })
+    }); 
+  }
+  function scheduleCronstyle2(){
+    schedule.scheduleJob('0 0 0 1 * *', function(){
+      console.log('scheduleCronstyle2:' + new Date());
+      let sql2 = `SELECT * FROM customer where state = 'unlock' ORDER BY cid`
+      db.query(sql2, (err, results) => {
+        if (err) throw err;
+        for (let i = 0; i < results.length; i++) {
+          let Results = results[i], nowYear = (new Date()).getFullYear(), nowMonth = (new Date()).getMonth() + 1
+          if ((new Date(Results.didTime)).getFullYear() === nowYear && nowMonth - (new Date(Results.didTime)).getMonth() + 1 > 0) {
+            let sql1 = `UPDATE customer SET progress = '已超时', overCount = overCount + 1 where cid = '${Results.cid}'`
+            db.query(sql1, (err, r) => { if (err) throw err })
+          }
+          let sql = `SELECT * FROM customerType where ctid = '${Results.ctid}'`
+          db.query(sql, (err, results) => {
+            if (err) throw err;
+            let count = results[0].count
+            let sql = `SELECT * FROM salary where sid = '${Results.sid}'`
+            db.query(sql, (err, results) => {
+              if (err) throw err;
+              let salary = results[0].salary
+              let payYear = (new Date(Results.payTime)).getFullYear()
+              let payMonth = (new Date(Results.payTime)).getMonth() + 1
+              let debt = 0
+              if (nowYear - payYear === 0) {
+                debt = Math.floor((nowMonth - payMonth)/count)*salary
+              } else {
+                debt = Math.floor((nowMonth - payMonth + 12*(nowYear - payYear))/count)*salary
+              }
+              if (debt !== 0) {
+                let sql = `UPDATE customer SET debt = debt + ${debt}, debtCount = debtCount + 1 where cid = '${Results.cid}'`
+                db.query(sql, (err, r) => { if (err) throw err })
+              }
+            })
+          })
+        }
+      })
+    }); 
+  }
+  function scheduleCronstyle3(){
+    schedule.scheduleJob('0 0 0 1 1 *', function(){
+      console.log('scheduleCronstyle3:' + new Date());
+      let sql1 = `UPDATE customer SET overCount = 0, debtCount = 0`
+      db.query(sql1, (err, r) => { if (err) throw err })
+    }); 
+  }
+  scheduleCronstyle1();
+  scheduleCronstyle2();
+  scheduleCronstyle3();
+  console.log('Mysql connected')
 })
 
 // body-parser解析json

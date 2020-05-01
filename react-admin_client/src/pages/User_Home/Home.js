@@ -142,7 +142,7 @@ class Home extends Component {
         })
           .then((res) => {
             message.success('修改个人信息成功！')
-            this.setState({ editVisible: false, name: '', sex: '', phone: '' })
+            this.setState({ editVisible: false })
           })
           .catch((e) => {
             message.error(e);
@@ -178,9 +178,9 @@ class Home extends Component {
 
   handleCancel = (type) => {
     if (type === 'edit') {
-      this.setState({ editVisible: false, name: '', sex: '', phone: '' })
+      this.setState({ editVisible: false })
     } else {
-      this.setState({ changeVisible: false, password: '' })
+      this.setState({ changeVisible: false, password1: '', password2: '' })
     }
   }
 
@@ -190,7 +190,7 @@ class Home extends Component {
       location: { pathname = '' },
       history 
     } = this.props
-    const { collapsed, editVisible, name, sex, phone, changeVisible } = this.state
+    const { collapsed, editVisible, name, sex, phone, changeVisible, password1, password2 } = this.state
     const menu = (
       <Menu onClick={(key) => { this.onClick(key) }}>
         <Menu.Item key="1">编辑个人信息</Menu.Item>
@@ -296,10 +296,10 @@ class Home extends Component {
                 ]}
               >
                 <Row style={{ height: 50 }}>
-                  <Col span={4}>新密码</Col>
+                  <Col span={4} style={{ lineHeight: '30px' }}>新密码</Col>
                   <Col span={20}>
                     <Input
-                      prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                      defaultValue={password1}
                       type='password'
                       placeholder="请输入新设置的密码"
                       onChange={(e) => { this.setState({ password1: e.target.value })}}
@@ -307,12 +307,12 @@ class Home extends Component {
                   </Col>
                 </Row>
                 <Row style={{ height: 50 }}>
-                  <Col span={4}>确认密码</Col>
+                  <Col span={4} style={{ lineHeight: '30px' }}>确认密码</Col>
                   <Col span={20}>
                     <Input
-                      prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                      defaultValue={password2}
                       type='password'
-                      placeholder="请输入新设置的密码"
+                      placeholder="请再次确认输入新设置的密码"
                       onChange={(e) => { this.setState({ password2: e.target.value })}}
                     />
                   </Col>
@@ -325,7 +325,7 @@ class Home extends Component {
               <Router history={history}>
                 <Switch>
                   {this.getRoutes(routes[1].routes, '/home')}
-                  <Redirect exact from="/home" to={`/home${routes[1].routes[0].path}`} />
+                  <Redirect exact from="/home" to={`/home${routes[1].routes[0].path}${routes[1].routes[0].children[0].path}`} />
                 </Switch>
               </Router>
             </div>

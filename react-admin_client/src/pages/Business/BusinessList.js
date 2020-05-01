@@ -246,7 +246,7 @@ class Business extends Component {
               onConfirm={() => {
                 dispatch({
                   type: 'business/didPay',
-                  payload: { bid: record.bid },
+                  payload: { bid: record.bid, cid: record.cid, salary: record.salary, uid: record.uid },
                 })
                   .then((res) => {
                     if (res.msg === '') {

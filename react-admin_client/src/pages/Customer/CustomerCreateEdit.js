@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Form, Input, Button, message, Radio, Select, Row, Col } from 'antd';
+import { Card, Form, Input, Button, message, Select, Row, Col } from 'antd';
 import { connect } from 'dva';
 
 import SearchPerson from '../../components/searchPerson'
@@ -90,7 +90,7 @@ class CustomerCreateEdit extends Component {
       },
       dispatch
     } = this.props
-    const { visible, ctid, uid } = this.state
+    const { ctid, uid } = this.state
     const formItemLayout = {
       labelCol: { span: 2 },
       wrapperCol: { span: 6 },

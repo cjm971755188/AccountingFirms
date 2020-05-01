@@ -437,18 +437,6 @@ class Absent extends Component {
             >
               <Button icon="delete" style={{ marginRight: 8 }}>清除所有已作废请假单</Button>
             </Popconfirm>
-            {/* <Button
-              icon="plus"
-              style={{ marginRight: 8 }}
-              onClick={() => { 
-                this.props.history.push({
-                  pathname: '/home/absent/create',
-                  state: { flag: 2 }
-                })
-              }}
-            >
-              请假（员工）
-            </Button> */}
             <Button
               icon="plus"
               type="primary"

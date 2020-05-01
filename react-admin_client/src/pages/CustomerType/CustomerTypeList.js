@@ -110,7 +110,7 @@ class CustomerType extends Component {
     const { dispatch } = this.props
     const columns = [
       { title: '编号', dataIndex: 'ctid', key: 'ctid' },
-      { title: '结算类型', dataIndex: 'name', key: 'name' },
+      { title: '结算类型名称', dataIndex: 'name', key: 'name' },
       { 
         title: '描述',
         dataIndex: 'description', 
@@ -129,6 +129,7 @@ class CustomerType extends Component {
         },
         render: (text) => <Tooltip placement="topLeft" title={text}>{text}</Tooltip>
       },
+      { title: '结算月数', dataIndex: 'count', key: 'count' },
       {
         title: '操作',
         width: '30%',

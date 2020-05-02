@@ -2,8 +2,7 @@ import User from './pages/User_Home/User';
 import UserLogin from './pages/User_Home/UserLogin';
 
 import Home from './pages/User_Home/Home';
-import Workspace from './pages/Main/Workspace';
-import Analysis from './pages/Main/Analysis';
+import Workspace from './pages/Workspace/Workspace';
 
 import PersonList from './pages/Person/PersonList';
 import PersonCreate from './pages/Person/PersonCreateEdit';
@@ -14,10 +13,12 @@ import CustomerList from './pages/Customer/CustomerList';
 import CustomerCreate from './pages/Customer/CustomerCreateEdit';
 import CustomerDetail from './pages/Customer/CustomerDetail';
 import CustomerEdit from './pages/Customer/CustomerCreateEdit';
+import CustomerAnalysis from './pages/Customer/CustomerAnalysis';
 
 import BusinessList from './pages/Business/BusinessList';
 import BusinessCreate from './pages/Business/BusinessCreate';
 import BusinessGuide from './pages/Business/BusinessGuide';
+import BusinessAnalysis from './pages/Business/BusinessAnalysis';
 
 import AbsentList from './pages/Absent/AbsentList';
 import AbsentCreate from './pages/Absent/AbsentCreate';
@@ -62,19 +63,9 @@ export default [
     routes: [
       { 
         path: '/main',
+        component: Workspace,
         exact: true,
-        children: [
-          { 
-            path: '/workspace', 
-            component: Workspace, 
-            exact: true,
-          },
-          { 
-            path: '/analysis', 
-            component: Analysis, 
-            exact: true,
-          },
-        ]
+        
       },
       { 
         path: '/person', 
@@ -126,6 +117,11 @@ export default [
             component: CustomerDetail, 
             exact: true,
           },
+          { 
+            path: '/analysis', 
+            component: CustomerAnalysis, 
+            exact: true,
+          },
         ]
       },
       { 
@@ -145,6 +141,11 @@ export default [
           { 
             path: '/guide', 
             component: BusinessGuide, 
+            exact: true,
+          },
+          { 
+            path: '/analysis', 
+            component: BusinessAnalysis, 
             exact: true,
           },
         ]

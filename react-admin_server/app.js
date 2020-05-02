@@ -19,21 +19,25 @@ db.connect((err) => {
         if (err) throw err;
         for (let i = 0; i < results.length; i++) {
           let uid = results[i].uid
-          let s = `SELECT * FROM absent where progress = '已通过' and uid = '${results[i].uid}'`
-          db.query(s, (err, results) => {
+          let sql = `SELECT * FROM absent where progress = '已通过' and uid = '${results[i].uid}'`
+          db.query(sql, (err, results) => {
             if (err) throw err;
             if (results.length === 0) {
-              let q = `UPDATE user SET absent = '在班' where uid = '${uid}'`
-              db.query(q, (err, r) => { if (err) throw err })
+              let sql = `UPDATE user SET absent = '在班' where uid = '${uid}'`
+              db.query(sql, (err, r) => { if (err) throw err })
             } else {
+              let x = 0
               for (let j = 0; j < results.length; j++) {
-                const today = (new Date()).valueOf();
+                let today = (new Date()).valueOf();
                 if (today > results[j].startTime && today < results[j].endTime) {
-                  let q = `UPDATE user SET absent = '请假' where uid = '${uid}'`
-                  db.query(q, (err, r) => { 
-                    if (err) throw err; 
-                  })
+                  x ++;
+                  let sql = `UPDATE user SET absent = '请假' where uid = '${uid}'`
+                  db.query(sql, (err, r) => { if (err) throw err; })
                 }
+              }
+              if (x === 0) {
+                let sql = `UPDATE user SET absent = '在班' where uid = '${uid}'`
+                db.query(sql, (err, r) => { if (err) throw err })
               }
             }
           })
@@ -47,12 +51,16 @@ db.connect((err) => {
       let sql2 = `SELECT * FROM customer where state = 'unlock' ORDER BY cid`
       db.query(sql2, (err, results) => {
         if (err) throw err;
-        for (let i = 0; i < results.length; i++) {
-          let Results = results[i], nowYear = (new Date()).getFullYear(), nowMonth = (new Date()).getMonth() + 1
-          if ((new Date(Results.didTime)).getFullYear() === nowYear && nowMonth - (new Date(Results.didTime)).getMonth() + 1 > 0) {
-            let sql1 = `UPDATE customer SET progress = '已超时', overCount = overCount + 1 where cid = '${Results.cid}'`
+        let Results = results[i], nowYear = (new Date()).getFullYear(), nowMonth = (new Date()).getMonth() + 1
+        if ((new Date(Results.didTime)).getFullYear() === nowYear && nowMonth - (new Date(Results.didTime)).getMonth() + 1 > 0) {
+          let sql1 = `UPDATE customer SET progress = '已超时', overCount = overCount + 1 where progress = '未完成'`
+          db.query(sql1, (err, r) => { 
+            if (err) throw err;
+            let sql1 = `UPDATE customer SET progress = '未完成' where progress = '已完成'`
             db.query(sql1, (err, r) => { if (err) throw err })
-          }
+          })
+        }
+        for (let i = 0; i < results.length; i++) {
           let sql = `SELECT * FROM customerType where ctid = '${Results.ctid}'`
           db.query(sql, (err, results) => {
             if (err) throw err;

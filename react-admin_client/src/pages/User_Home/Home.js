@@ -325,7 +325,7 @@ class Home extends Component {
               <Router history={history}>
                 <Switch>
                   {this.getRoutes(routes[1].routes, '/home')}
-                  <Redirect exact from="/home" to={`/home${routes[1].routes[0].path}${routes[1].routes[0].children[0].path}`} />
+                  <Redirect exact from="/home" to={`/home${routes[1].routes[0].path}`} />
                 </Switch>
               </Router>
             </div>

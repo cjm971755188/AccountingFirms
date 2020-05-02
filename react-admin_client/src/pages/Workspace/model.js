@@ -1,7 +1,7 @@
-import { getBusinessList, getCustomerList, didPayB, didPayC, getAnalysis } from '../../services/main';
+import { getBusinessList, getCustomerList, didPayB, didPayC } from '../../services/workspace';
 
 export default {
-  namespace: 'main',
+  namespace: 'workspace',
   state: {
     businessList: {
       data: [],
@@ -14,17 +14,7 @@ export default {
       pageNum: 1,
       pageSize: 8,
       total: 0
-    },
-    analysis: {
-      pCount: {},
-      cCount: {},
-      bCount: {},
-      sCount: {},
-      aOption: {},
-      AList: [],
-      BList: [],
-      OList: []
-    } 
+    }
   },
 
   effects: {
@@ -70,19 +60,7 @@ export default {
         return Promise.reject(e);
       }
     },
-    *getAnalysis({ payload }, { call, put }) {
-      try {
-        const res = yield call(getAnalysis, payload);
-        yield put({
-          type: 'save',
-          payload: res.data,
-          index: 'analysis'
-        });
-        return Promise.resolve(res);
-      } catch (e) {
-        return Promise.reject(e);
-      }
-    },
+    
   },
 
   reducers: {

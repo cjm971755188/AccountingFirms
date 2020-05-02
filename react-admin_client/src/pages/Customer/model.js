@@ -1,4 +1,4 @@
-import { getCustomerList, createCustomer, editCustomer, deleteCustomer, didComplete, didPay, getCustomerTypes, getSalarys, getUsers } from '../../services/customer';
+import { getCustomerList, createCustomer, editCustomer, deleteCustomer, didComplete, didPay, getAnalysis, getCustomerTypes, getSalarys, getUsers } from '../../services/customer';
 
 export default {
   namespace: 'customer',
@@ -22,6 +22,16 @@ export default {
       choosedCredit: 'all'
     },
     detail: [],
+    analysis: {
+      pCount: {},
+      cCount: {},
+      bCount: {},
+      sCount: {},
+      aOption: {},
+      AList: [],
+      BList: [],
+      OList: []
+    }, 
     customerTypes: [],
     salarys: [],
     users: []
@@ -92,6 +102,19 @@ export default {
     *didPay({ payload }, { call, put }) {
       try {
         const res = yield call(didPay, payload);
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *getAnalysis({ payload }, { call, put }) {
+      try {
+        const res = yield call(getAnalysis, payload);
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'analysis'
+        });
         return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);

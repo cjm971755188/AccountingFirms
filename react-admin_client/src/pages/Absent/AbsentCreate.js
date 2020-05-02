@@ -46,7 +46,7 @@ class AbsentCreate extends Component {
           .then((res) => {
             if (res.msg === '') {
               message.success('添加请假单成功！')
-              this.props.history.replace('/home/absent/list');
+              this.props.history.replace(user.did === 1 ? '/home/absent/list' : '/home/main');
               this.props.form.resetFields();
             } else {
               message.error(res.msg)

@@ -264,7 +264,7 @@ class Business extends Component {
             >
               <span className='spanToa'>确认结算</span>
             </Popconfirm> : null}
-            {record.progress === '办理中' ? <><Divider type="vertical" />
+            {record.progress === '办理中' && user.did === 1 ? <><Divider type="vertical" />
             <Popconfirm
               icon={<Icon type="question-circle-o" style={{ color: 'red' }} />}
               title="该业务【酬金未结算】，确认删除么？"
@@ -434,7 +434,7 @@ class Business extends Component {
             >
               业务指南
             </Button>
-            <Button
+            {user.did === 1 ? <Button
               icon="plus"
               type="primary"
               onClick={() => { 
@@ -445,7 +445,7 @@ class Business extends Component {
               }}
             >
               添加业务
-            </Button>
+            </Button> : null}
           </>
         }
       >

@@ -33,38 +33,43 @@ class PersonCreateEdit extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        dispatch({
-          type: flag === 'create' ? 'person/create' : 'person/edit',
-          payload: { 
-            uid: flag === 'create' ? null : record.uid,  
-            ...values 
-          }
-        })
-          .then((res) => {
-            if (res.msg === '') {
-              if (flag === 'create') {
-                Modal.info({
-                  title: '添加员工成功！',
-                  content: (
-                    <div>
-                      <p>新员工{values.name}的工号为：{res.data.username}，密码为：123456</p>
-                      <p>PS: 建议该员工先自行修改登录密码</p>
-                    </div>
-                  ),
-                  onOk() {},
-                })
-              } else {
-                message.success('修改员工信息成功！')
-              }
-              this.props.history.replace('/home/person/list');
-              this.props.form.resetFields();
-            } else {
-              message.error(res.msg)
+        if(!(/^1[3456789]\d{9}$/.test(values.phone))){ 
+          message.error("手机号码有误，请重填!");
+        } else {
+          dispatch({
+            type: flag === 'create' ? 'person/create' : 'person/edit',
+            payload: { 
+              uid: flag === 'create' ? null : record.uid,  
+              ...values 
             }
           })
-          .catch((e) => {
-            message.error(e);
-          });
+            .then((res) => {
+              if (res.msg === '') {
+                if (flag === 'create') {
+                  Modal.info({
+                    title: '添加员工成功！',
+                    content: (
+                      <div>
+                        <p>新员工{values.name}的工号为：{res.data.username}，密码为：123456</p>
+                        <p>PS: 建议该员工先自行修改登录密码</p>
+                      </div>
+                    ),
+                    onOk() {},
+                  })
+                } else {
+                  message.success('修改员工信息成功！')
+                }
+                this.props.history.replace('/home/person/list');
+                this.props.form.resetFields();
+              } else {
+                message.error(res.msg)
+              }
+            })
+            .catch((e) => {
+              message.error(e);
+            });
+        }
+        
       }
     });
   };

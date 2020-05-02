@@ -1,4 +1,4 @@
-import { getBusinessList, createBusiness, deleteBusiness, didComplete, didPay, getBusinessTypes, getGuides } from '../../services/business';
+import { getBusinessList, createBusiness, deleteBusiness, didComplete, didPay, getAnalysis, getBusinessTypes, getGuides } from '../../services/business';
 
 export default {
   namespace: 'business',
@@ -22,6 +22,16 @@ export default {
       choosedProgress: 'all'
     },
     detail: [],
+    analysis: {
+      pCount: {},
+      cCount: {},
+      bCount: {},
+      sCount: {},
+      aOption: {},
+      AList: [],
+      BList: [],
+      OList: []
+    },
     businessTypes: [],
     guides: [],
     users: []
@@ -68,6 +78,19 @@ export default {
     *didPay({ payload }, { call, put }) {
       try {
         const res = yield call(didPay, payload); 
+        return Promise.resolve(res);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    },
+    *getAnalysis({ payload }, { call, put }) {
+      try {
+        const res = yield call(getAnalysis, payload);
+        yield put({
+          type: 'save',
+          payload: res.data,
+          index: 'analysis'
+        });
         return Promise.resolve(res);
       } catch (e) {
         return Promise.reject(e);

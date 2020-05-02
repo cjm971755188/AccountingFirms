@@ -10,6 +10,8 @@ export function didComplete(params) { return request('/business/didComplete', { 
 
 export function didPay(params) { return request('/business/didPay', { method: 'POST', body: { ...params } }) }
 
+export function getAnalysis(params) { return request('/business/getAnalysis', { method: 'POST', body: { ...params } }) }
+
 export function getBusinessTypes(params) { return request('/business/getBusinessTypes', { method: 'POST', body: { ...params } }) }
 
 export function getUsers(params) { return request('/business/getUsers', { method: 'POST', body: { ...params } }) }

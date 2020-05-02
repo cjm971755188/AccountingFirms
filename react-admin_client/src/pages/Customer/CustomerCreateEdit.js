@@ -45,29 +45,35 @@ class CustomerCreateEdit extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        dispatch({
-          type: flag === 'create' ? 'customer/create' : 'customer/edit',
-          payload: {
-            cid: flag === 'create' ? null : record.cid,
-            uid: user.did === 1 ? uid : user.uid,
-            sid: user.did === 1 ? values.sid : record.sid,
-            ctid: user.did === 1 ? values.ctid : record.ctid,
-            isAccount: '是',
-            ...values
-          }
-        })
-          .then((res) => {
-            if (res.msg === '') {
-              message.success(flag === 'create' ? '添加客户成功！': '修改客户信息成功！')
-              this.props.history.replace('/home/customer/list');
-              this.props.form.resetFields();
-            } else {
-              message.error(res.msg)
+        if(!/^[A-Z0-9]{15}$|^[A-Z0-9]{17}$|^[A-Z0-9]{18}$|^[A-Z0-9]{20}$/.test(values.ID)){
+          message.error('公司税号出错，请重新填写！')
+        } else if (!(/^1[3456789]\d{9}$/.test(values.linkPhone))) {
+          message.error('手机号码有误，请重填!')
+        } else {
+          dispatch({
+            type: flag === 'create' ? 'customer/create' : 'customer/edit',
+            payload: {
+              cid: flag === 'create' ? null : record.cid,
+              uid: user.did === 1 ? uid : user.uid,
+              sid: user.did === 1 ? values.sid : record.sid,
+              ctid: user.did === 1 ? values.ctid : record.ctid,
+              ...values
             }
           })
-          .catch((e) => {
-            message.error(e);
-          });
+            .then((res) => {
+              if (res.msg === '') {
+                message.success(flag === 'create' ? '添加客户成功！': '修改客户信息成功！')
+                this.props.history.replace('/home/customer/list');
+                this.props.form.resetFields();
+              } else {
+                message.error(res.msg)
+              }
+            })
+            .catch((e) => {
+              message.error(e);
+            });
+        }
+        
       }
     });
   };
@@ -186,19 +192,6 @@ class CustomerCreateEdit extends Component {
               <Input placeholder="请输入客户联系电话" />,
             )}
           </Form.Item>
-          {/* {user.did === 1 ? <Form.Item label='是否做账' {...formItemLayout}>
-            {getFieldDecorator('isAccount', {
-              initialValue: flag === 'create' ? '' : record.isAccount,
-              rules: [
-                { required: true, message: '做账判定不能为空!' },
-              ],
-            })(
-              <Radio.Group>
-                <Radio value='是' onClick={() => { this.setState({ visible: true}) }}>是</Radio>
-                <Radio value='否' onClick={() => { this.setState({ visible: false}) }}>否</Radio>
-              </Radio.Group>,
-            )}
-          </Form.Item> : null} */}
           {user.did === 1 ? 
           <Form.Item>
             <Row>

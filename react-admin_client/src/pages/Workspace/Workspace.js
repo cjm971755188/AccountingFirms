@@ -2,13 +2,11 @@ import React, { Component } from 'react';
 import { Card, List, Pagination, Row, Col, Button, Popconfirm, message, Modal, InputNumber, Divider } from 'antd';
 import { connect } from 'dva';
 
-import moment from 'moment';
-
-@connect(({ main, user, loading }) => ({
-  main,
+@connect(({ workspace, user, loading }) => ({
+  workspace,
   user,
 }))
-class Main extends Component {
+class Workspace extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -36,7 +34,7 @@ class Main extends Component {
   getCusotmerList = (pageNum) => {
     const { dispatch } = this.props
     dispatch({
-      type: 'main/getCustomerList',
+      type: 'workspace/getCustomerList',
       payload: {
         name: '',
         credit: '欠款',
@@ -49,7 +47,7 @@ class Main extends Component {
   getBusinessList = (pageNum) => {
     const { dispatch } = this.props
     dispatch({
-      type: 'main/getBusinessList',
+      type: 'workspace/getBusinessList',
       payload: {
         progress: '未结算',
         pageNum,
@@ -62,7 +60,7 @@ class Main extends Component {
     const { user: { user } } = this.props
     const { dispatch } = this.props
     dispatch({
-      type: 'main/getCustomerList',
+      type: 'workspace/getCustomerList',
       payload: {
         uid: user.uid,
         name: '',
@@ -77,7 +75,7 @@ class Main extends Component {
     const { user: { user } } = this.props
     const { dispatch } = this.props
     dispatch({
-      type: 'main/getBusinessList',
+      type: 'workspace/getBusinessList',
       payload: {
         uid: user.uid,
         progress: '办理中',
@@ -113,15 +111,29 @@ class Main extends Component {
   }
   
   onChangeCustomer = page => {
-    console.log(page);
+    const { user: { user } } = this.props
     this.setState({ pageNum1: page })
-    this.getCusotmerList(page)
+    if (user.did === 1) {
+      this.getCusotmerList(page)
+      this.getBusinessList(page)
+    } else if (user.did === 2) {
+      this.getList2(page)
+    } else {
+      this.getList3(page)
+    }
   };
 
   onChangeBusiness = page => {
-    console.log(page);
+    const { user: { user } } = this.props
     this.setState({ pageNum2: page })
-    this.getBusinessList(page)
+    if (user.did === 1) {
+      this.getCusotmerList(page)
+      this.getBusinessList(page)
+    } else if (user.did === 2) {
+      this.getList2(page)
+    } else {
+      this.getList3(page)
+    }
   };
 
   title = () => {
@@ -135,7 +147,7 @@ class Main extends Component {
   render () {
     const { 
       user: { user }, 
-      main: { 
+      workspace: { 
         businessList, customerList
       },
       dispatch
@@ -172,59 +184,56 @@ class Main extends Component {
             renderItem={item => (
               <List.Item>
                 <Card 
+                  className="workCard"
+                  style={{ textAlign: 'center'}}
                   title={item.name}
-                  extra={
-                    user.did === 1 ? <Button 
-                      type='primary' 
-                      icon={user.did === 1 ? 'pay-circle' : 'check'}
-                      onClick={() => {
-                        this.setState({ visible: true, pay: item.debt, item: item })
-                      }}
-                    >
-                      结算
-                    </Button> : 
-                    <Popconfirm
-                      title="确认完成做账吗"
-                      onConfirm={() => {
-                        dispatch({
-                          type: 'customer/didComplete',
-                          payload: { cid: item.cid },
-                        })
-                          .then((res) => {
-                            if (res.msg === '') {
-                              message.success(`'${item.name}'完成做账成功`);
-                            } else {
-                              message.error(res.msg)
-                            }
-                            this.getList2(pageNum1);
-                          })
-                          .catch((e) => {
-                            message.error(e);
-                            this.getList2(pageNum1);
-                          });
-                      }}
-                      onCancel={() => {}}
-                      okText="确认"
-                      cancelText="取消"
-                    >
-                      <Button type='primary' icon={user.did === 1 ? 'pay-circle' : 'check'}>
-                        确认完成
-                      </Button>
-                    </Popconfirm>
-                  }
+                  actions={[
+                    <Row>
+                      {
+                        user.did === 1 ? <Row 
+                          type='primary' 
+                          icon={user.did === 1 ? 'pay-circle' : 'check'}
+                          style={{ width: '100%', fontSize: 20, fontWeight: 600 }}
+                          onClick={() => {
+                            this.setState({ visible: true, pay: item.debt, item: item })
+                          }}
+                        >
+                          结算
+                        </Row> : 
+                        <Popconfirm
+                          title="确认完成做账吗"
+                          onConfirm={() => {
+                            dispatch({
+                              type: 'customer/didComplete',
+                              payload: { cid: item.cid },
+                            })
+                              .then((res) => {
+                                if (res.msg === '') {
+                                  message.success(`'${item.name}'完成做账成功`);
+                                } else {
+                                  message.error(res.msg)
+                                }
+                                this.getList2(pageNum1);
+                              })
+                              .catch((e) => {
+                                message.error(e);
+                                this.getList2(pageNum1);
+                              });
+                          }}
+                          onCancel={() => {}}
+                          okText="确认"
+                          cancelText="取消"
+                        >
+                          <Row type='primary' icon={user.did === 1 ? 'pay-circle' : 'check'} style={{ width: '100%', fontSize: 20, fontWeight: 600 }}>
+                            确认完成
+                          </Row>
+                        </Popconfirm>
+                      }
+                    </Row>
+                  ]}
                 >
-                  <Row>
-                    <Col span={8}>结算类型：</Col>
-                    <Col span={16}>{item.ctName}-{item.salary}</Col>
-                  </Row>
-                  <Row>
-                    <Col span={8}>上次结算时间：</Col>
-                    <Col span={16}>{moment(item.payTime).format('YYYY-MM-DD HH:mm:ss')}</Col>
-                  </Row>
-                  <Row>
-                    <Col span={8}>欠款总金额：</Col>
-                    <Col span={16}>{item.debt}</Col>
-                  </Row>
+                  <Row>企业税号：{item.ID}</Row>
+                  {user.did === 1 ? <Row>欠款总金额：{item.debt}元</Row> : null}
                 </Card>
               </List.Item>
             )}
@@ -239,48 +248,43 @@ class Main extends Component {
             renderItem={item => (
               <List.Item>
                 <Card 
+                  className="workCard"
+                  style={{ textAlign: 'center'}}
                   title={item.cName}
-                  extra={
-                    <Popconfirm
-                      title="确认结算吗?"
-                      onConfirm={() => {
-                        dispatch({
-                          type: 'main/didPayB',
-                          payload: { bid: item.bid, cid: item.cid, salary: item.salary, uid: item.uid },
-                        })
-                          .then((res) => {
-                            if (res.msg === '') {
-                              message.success(`'${item.cName}'的'${item.btName}'业务完成结算成功`);
-                            } else {
-                              message.error(res.msg)
-                            }
-                            this.getBusinessList(pageNum2);
+                  actions={[
+                    <Row>
+                      <Popconfirm
+                        title="确认结算吗?"
+                        onConfirm={() => {
+                          dispatch({
+                            type: 'workspace/didPayB',
+                            payload: { bid: item.bid, cid: item.cid, salary: item.salary, uid: item.uid },
                           })
-                          .catch((e) => {
-                            message.error(e);
-                            this.getBusinessList(pageNum2);
-                          });
-                      }}
-                      onCancel={() => {}}
-                      okText="确认"
-                      cancelText="取消"
-                    >
-                      <Button type='primary' icon={user.did === 1 ? 'pay-circle' : 'check'}>{user.did === 1 ? '结算' : '确认完成'}</Button>
-                    </Popconfirm>
-                  }
+                            .then((res) => {
+                              if (res.msg === '') {
+                                message.success(`'${item.cName}'的'${item.btName}'业务完成结算成功`);
+                              } else {
+                                message.error(res.msg)
+                              }
+                              this.getBusinessList(pageNum2);
+                            })
+                            .catch((e) => {
+                              message.error(e);
+                              this.getBusinessList(pageNum2);
+                            });
+                        }}
+                        onCancel={() => {}}
+                        okText="确认"
+                        cancelText="取消"
+                      >
+                        <Row type='primary' icon={user.did === 1 ? 'pay-circle' : 'check'} style={{ width: '100%', fontSize: 20, fontWeight: 600 }}>{user.did === 1 ? '结算' : '确认完成'}</Row>
+                      </Popconfirm>
+                    </Row>
+                  ]}
                 >
-                  <Row>
-                    <Col span={8}>业务类型：</Col>
-                    <Col span={16}>{item.btName}</Col>
-                  </Row>
-                  <Row>
-                    <Col span={8}>联系人名：</Col>
-                    <Col span={16}>{item.linkName}</Col>
-                  </Row>
-                  <Row>
-                    <Col span={8}>联系人电话：</Col>
-                    <Col span={16}>{item.linkPhone}</Col>
-                  </Row>
+                  <Row>业务类型：{item.btName}</Row>
+                  <Row>联系人名：{item.linkName}</Row>
+                  <Row>联系人电话：{item.linkPhone}</Row>
                 </Card>
               </List.Item>
             )}
@@ -300,7 +304,7 @@ class Main extends Component {
               type="primary" 
               onClick={() => {
                 dispatch({
-                  type: 'main/didPayC',
+                  type: 'workspace/didPayC',
                   payload: { 
                     cid: this.state.item.cid,
                     pay: this.state.pay,
@@ -345,4 +349,4 @@ class Main extends Component {
   }
 }
 
-export default Main;
+export default Workspace;

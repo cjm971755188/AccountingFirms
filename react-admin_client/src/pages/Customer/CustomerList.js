@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { Card, Table, Button, Row, Col, Input, Select, Icon, Divider, Popconfirm, message, InputNumber, Modal } from 'antd';
 import { connect } from 'dva';
 
-import moment from 'moment';
-
 const { Option } = Select;
 
 @connect(({ customer, user, loading }) => ({
@@ -162,20 +160,18 @@ class Customer extends Component {
     const columns = [
       { title: '税号', dataIndex: 'ID', key: 'ID' },
       { title: '客户公司名称', dataIndex: 'name', key: 'name' },
-      { title: '结算类型', dataIndex: 'ctName', key: 'ctName' },
-      { title: '结算酬金', dataIndex: 'salary', key: 'salary' },
-      { title: '联系人', dataIndex: 'linkName', key: 'linkName' },
-      { title: '联系电话', dataIndex: 'linkPhone', key: 'linkPhone' },
-      { title: '负责会计', dataIndex: 'uName', key: 'uName' },
       { 
-        title: '最近做账时间',
+        title: '结算类型',
         render: record => {
-          if (record.didTime) {
-            return <span>{moment(record.didTime).format('YYYY-MM-DD')}</span>
+          if (record.ctid && record.sid) {
+            return <span>{record.ctName} - {record.salary}</span>
           }
           return null
         }
       },
+      { title: '联系人', dataIndex: 'linkName', key: 'linkName' },
+      { title: '联系电话', dataIndex: 'linkPhone', key: 'linkPhone' },
+      { title: '负责会计', dataIndex: 'uName', key: 'uName' },
       { 
         title: '做账状态', 
         render: record => {
@@ -201,15 +197,6 @@ class Customer extends Component {
               </Row>
             )
           }
-        }
-      },
-      { 
-        title: '最近结算时间',
-        render: record => {
-          if (record.payTime) {
-            return <span>{moment(record.payTime).format('YYYY-MM-DD')}</span>
-          }
-          return null
         }
       },
       { 
@@ -320,7 +307,7 @@ class Customer extends Component {
       }
     ]
     if (user.did !== 1) {
-      columns.splice(6,2)
+      columns.splice(5,1)
     }
     return columns;
   };
@@ -503,7 +490,7 @@ class Customer extends Component {
               type="primary" 
               onClick={() => {
                 dispatch({
-                  type: 'main/didPayC',
+                  type: 'customer/didPay',
                   payload: { 
                     cid: this.state.item.cid,
                     pay: this.state.pay,

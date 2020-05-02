@@ -3,11 +3,11 @@ import { Card, Row, Col, List, Statistic, Icon } from 'antd';
 import { connect } from 'dva';
 import ReactEcharts from 'echarts-for-react';
 
-@connect(({ main, loading }) => ({
-  main,
-  loading: loading.effects['main/getAnalysis'],
+@connect(({ business, loading }) => ({
+  business,
+  loading: loading.effects['business/getAnalysis'],
 }))
-class Analysis extends Component {
+class BusinessAnalysis extends Component {
   constructor(props) {
     super(props);
     this.state = {}
@@ -16,14 +16,14 @@ class Analysis extends Component {
   UNSAFE_componentWillMount () {
     const { dispatch } = this.props
     dispatch({
-      type: 'main/getAnalysis',
+      type: 'business/getAnalysis',
       payload: {},
     });
   }
 
   render () {
     const { 
-      main: { 
+      business: { 
         analysis: {
           pCount = {},
           cCount = {},
@@ -173,4 +173,4 @@ class Analysis extends Component {
   }
 }
 
-export default Analysis;
+export default BusinessAnalysis;
